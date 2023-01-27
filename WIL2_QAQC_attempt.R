@@ -1544,6 +1544,18 @@ WIL2_18_later <- filter(WIL2_18, Date_time < "2018-12-17 04:00:01")
 WIL2_18_end <- filter(WIL2_18, Date_time > "2018-12-20 00:50:01")
 WIL2_18 <- bind_rows(WIL2_18_later, WIL2_18_fix, WIL2_18_end)
 
+#Missing dates
+##################################################################################
+#Replace missing dates with NAs from 07/05 to 08/22
+#========================================================================
+insertDF <- as.data.frame(matrix(data = NA, nrow = 47, ncol = 5))
+colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
+Date_time <- seq(as.Date("2018-07-06"), as.Date("2018-08-21"),"days")
+Date <- as.data.frame(Date_time) 
+insertDF <- cbind(Date, insertDF)
+
+WIL2_18 <- insertRows(WIL2_18, c(26693:16069), new = insertDF)
+
 #Plot again 
 Soil <- ggplot(data = subset(WIL2_18, !is.na(Date_time)), aes(x = Date_time)) + 
   geom_line(aes(y = WC_30cm), color = "deepskyblue3") +
@@ -1554,7 +1566,7 @@ Soil <- ggplot(data = subset(WIL2_18, !is.na(Date_time)), aes(x = Date_time)) +
 Soil 
 
 #WIL 2 2019
-##################################################
+####################################################################
 WIL2_19 <- subset(WIL2, Year == '2019')
 
 #Plotting 
@@ -1811,6 +1823,99 @@ WIL2_19_later <- filter(WIL2_19, Date_time < "2019-01-08 05:00:01")
 WIL2_19_end <- filter(WIL2_19, Date_time > "2019-01-11 11:00:01")
 WIL2_19 <- bind_rows(WIL2_19_later, WIL2_19_fix, WIL2_19_end)
 
+#100 cm 
+###########################################################################
+
+#Calibrate 
+#=====================================================================================
+WIL2_19_fix <- filter(WIL2_19, Date_time > "2019-08-09 22:30:0")
+WIL2_19_fix <- filter(WIL2_19_fix, Date_time < "2019-10-26 13:40:01")
+
+WIL2_19_fix$WC_100cm <- WIL2_19_fix$WC_100cm + 0.0385
+
+#Recombine July with other dataset 
+WIL2_19_later <- filter(WIL2_19, Date_time < "2019-08-09 22:30:0")
+WIL2_19_end <- filter(WIL2_19, Date_time > "2019-10-26 13:40:01")
+WIL2_19 <- bind_rows(WIL2_19_later, WIL2_19_fix, WIL2_19_end)
+
+#Fix drips after calibration 
+#===========================================================
+WIL2_19_fix <- filter(WIL2_19, Date_time > "2019-08-01 05:00:01")
+WIL2_19_fix <- filter(WIL2_19_fix, Date_time < "2019-08-11 06:00:01")
+
+WIL2_19_fix$WC_100cm[WIL2_19_fix$WC_100cm < 0.202] <- NA
+missing <- which(is.na(WIL2_19_fix$WC_100cm))
+
+if(1 %in% missing){
+  WIL2_19_fix$WC_100cm[1] <- head(WIL2_19_fix$WC_100cm[!is.na(WIL2_19_fix$WC_100cm)],1)
+}
+if(nrow(WIL2_19_fix) %in% missing){
+  WIL2_19_fix$WC_100cm[nrow(data)] <- tail(WIL2_19_fix$WC_100cm[!is.na(WIL2_19_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_19_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_19_fix$WC_100cm[idx] <- (WIL2_19_fix$WC_100cm[r$starts[i]] + WIL2_19_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine July with other dataset 
+WIL2_19_later <- filter(WIL2_19, Date_time < "2019-08-01 05:00:01")
+WIL2_19_end <- filter(WIL2_19, Date_time > "2019-08-11 06:00:01")
+WIL2_19 <- bind_rows(WIL2_19_later, WIL2_19_fix, WIL2_19_end)
+
+#Fix drips after calibration 
+#===========================================================
+WIL2_19_fix <- filter(WIL2_19, Date_time > "2019-10-15 05:00:01")
+WIL2_19_fix <- filter(WIL2_19_fix, Date_time < "2019-11-11 06:00:01")
+
+Soil <- ggplot(data = subset(WIL2_19_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_100cm), color = "navyblue") +
+  ylab(expression(paste("30 cm Water Content"))) + 
+  xlab(expression("Date"))  
+Soil 
+
+WIL2_19_fix$WC_100cm[WIL2_19_fix$WC_100cm > 0.166] <- NA
+missing <- which(is.na(WIL2_19_fix$WC_100cm))
+
+if(1 %in% missing){
+  WIL2_19_fix$WC_100cm[1] <- head(WIL2_19_fix$WC_100cm[!is.na(WIL2_19_fix$WC_100cm)],1)
+}
+if(nrow(WIL2_19_fix) %in% missing){
+  WIL2_19_fix$WC_100cm[nrow(data)] <- tail(WIL2_19_fix$WC_100cm[!is.na(WIL2_19_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_19_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_19_fix$WC_100cm[idx] <- (WIL2_19_fix$WC_100cm[r$starts[i]] + WIL2_19_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine July with other dataset 
+WIL2_19_later <- filter(WIL2_19, Date_time < "2019-10-15 05:00:01")
+WIL2_19_end <- filter(WIL2_19, Date_time > "2019-11-11 06:00:01")
+WIL2_19 <- bind_rows(WIL2_19_later, WIL2_19_fix, WIL2_19_end)
+
 #Plot again 
 Soil <- ggplot(data = subset(WIL2_19, !is.na(Date_time)), aes(x = Date_time)) + 
   geom_line(aes(y = WC_30cm), color = "deepskyblue3") +
@@ -1957,6 +2062,334 @@ for(i in r$i){
 #Add them back into the full dataset 
 WIL2_20_later <- filter(WIL2_20, Date_time > "2020-04-15 06:00:01")
 WIL2_20_end <- filter(WIL2_20, Date_time < "2020-03-15 05:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
+
+#Subset and remove drips again
+#======================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-03-01 05:00:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-03-09 01:00:01")
+
+WIL2_20_fix$WC_15cm[WIL2_20_fix$WC_15cm < 0.316] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_15cm[1] <- head(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_15cm[nrow(data)] <- tail(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_15cm[idx] <- (WIL2_20_fix$WC_15cm[r$starts[i]] + WIL2_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-03-01 05:00:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-03-09 01:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
+
+#Subset and remove drips again
+#======================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-03-18 05:00:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-03-23 11:00:01")
+
+WIL2_20_fix$WC_15cm[WIL2_20_fix$WC_15cm < 0.3322] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_15cm[1] <- head(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_15cm[nrow(data)] <- tail(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_15cm[idx] <- (WIL2_20_fix$WC_15cm[r$starts[i]] + WIL2_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-03-18 05:00:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-03-23 11:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
+
+#Subset and remove drips again
+#======================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-03-23 05:00:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-03-24 11:00:01")
+
+WIL2_20_fix$WC_15cm[WIL2_20_fix$WC_15cm < 0.33] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_15cm[1] <- head(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_15cm[nrow(data)] <- tail(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_15cm[idx] <- (WIL2_20_fix$WC_15cm[r$starts[i]] + WIL2_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-03-23 05:00:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-03-24 11:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
+
+#Subset and remove drips again
+#======================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-03-27 05:00:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-04-01 11:00:01")
+
+WIL2_20_fix$WC_15cm[WIL2_20_fix$WC_15cm < 0.3325] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_15cm[1] <- head(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_15cm[nrow(data)] <- tail(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_15cm[idx] <- (WIL2_20_fix$WC_15cm[r$starts[i]] + WIL2_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-03-27 05:00:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-04-01 11:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
+
+#Subset and remove drips again
+#======================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-03-30 15:00:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-03-30 21:00:01")
+
+WIL2_20_fix$WC_15cm[WIL2_20_fix$WC_15cm < 0.345] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_15cm[1] <- head(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_15cm[nrow(data)] <- tail(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_15cm[idx] <- (WIL2_20_fix$WC_15cm[r$starts[i]] + WIL2_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-03-30 15:00:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-03-30 21:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
+
+#Subset and remove drips again
+#======================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-03-30 15:00:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-04-03 01:00:01")
+
+WIL2_20_fix$WC_15cm[WIL2_20_fix$WC_15cm < 0.334] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_15cm[1] <- head(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_15cm[nrow(data)] <- tail(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_15cm[idx] <- (WIL2_20_fix$WC_15cm[r$starts[i]] + WIL2_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-03-30 15:00:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-04-03 01:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
+
+#Subset and remove drips again
+#======================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-04-14 10:00:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-04-22 08:00:01")
+
+WIL2_20_fix$WC_15cm[WIL2_20_fix$WC_15cm < 0.327] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_15cm[1] <- head(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_15cm[nrow(data)] <- tail(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_15cm[idx] <- (WIL2_20_fix$WC_15cm[r$starts[i]] + WIL2_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-04-14 10:00:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-04-22 08:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
+
+#Subset and remove drips again
+#======================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-04-14 10:00:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-05-03 08:00:01")
+
+WIL2_20_fix$WC_15cm[WIL2_20_fix$WC_15cm < 0.321] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_15cm[1] <- head(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_15cm[nrow(data)] <- tail(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_15cm[idx] <- (WIL2_20_fix$WC_15cm[r$starts[i]] + WIL2_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-04-14 10:00:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-05-03 08:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
+
+#Subset and remove drips again
+#======================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-05-02 10:00:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-05-13 08:00:01")
+
+Soil <- ggplot(data = subset(WIL2_20_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_15cm, color = "lightblue"))
+Soil 
+
+WIL2_20_fix$WC_15cm[WIL2_20_fix$WC_15cm < 0.319] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_15cm[1] <- head(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_15cm[nrow(data)] <- tail(WIL2_20_fix$WC_15cm[!is.na(WIL2_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_15cm[idx] <- (WIL2_20_fix$WC_15cm[r$starts[i]] + WIL2_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-05-02 10:00:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-05-13 08:00:01")
 WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
 
 #Remove glitch 
@@ -3373,6 +3806,119 @@ WIL2_20_later <- filter(WIL2_20, Date_time < "2020-08-26 10:20:01")
 WIL2_20_end <- filter(WIL2_20, Date_time > "2020-08-30 07:00:01")
 WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
 
+#Subset and remove glitches
+#================================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-04-26 12:20:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-04-27 15:00:01")
+
+WIL2_20_fix$WC_100cm[WIL2_20_fix$WC_100cm < 0.265 | WIL2_20_fix$WC_100cm > 0.2681] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_100cm[1] <- head(WIL2_20_fix$WC_100cm[!is.na(WIL2_20_fix)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_100cm[nrow(data)] <- tail(WIL2_20_fix$WC_100cm[!is.na(WIL2_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_100cm[idx] <- (WIL2_20_fix$WC_100cm[r$starts[i]] + WIL2_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-04-26 12:20:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-04-27 15:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
+
+#Subset and remove glitches
+#================================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-04-28 00:20:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-04-29 15:00:01")
+
+WIL2_20_fix$WC_100cm[WIL2_20_fix$WC_100cm < 0.2662 | WIL2_20_fix$WC_100cm > 0.268] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_100cm[1] <- head(WIL2_20_fix$WC_100cm[!is.na(WIL2_20_fix)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_100cm[nrow(data)] <- tail(WIL2_20_fix$WC_100cm[!is.na(WIL2_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_100cm[idx] <- (WIL2_20_fix$WC_100cm[r$starts[i]] + WIL2_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-04-28 00:20:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-04-29 15:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
+
+#Subset and remove glitches
+#================================================================================
+WIL2_20_fix <- filter(WIL2_20, Date_time > "2020-04-27 05:20:01")
+WIL2_20_fix <- filter(WIL2_20_fix, Date_time < "2020-05-01 15:00:01")
+
+Soil <- ggplot(data = subset(WIL2_20_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_100cm), color = "navyblue") +
+  ylab(expression(paste("30 cm Water Content"))) + 
+  xlab(expression("Date"))  
+Soil 
+
+WIL2_20_fix$WC_100cm[WIL2_20_fix$WC_100cm < 0.266] <- NA
+missing <- which(is.na(WIL2_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  WIL2_20_fix$WC_100cm[1] <- head(WIL2_20_fix$WC_100cm[!is.na(WIL2_20_fix)],1)
+}
+if(nrow(WIL2_20_fix) %in% missing){
+  WIL2_20_fix$WC_100cm[nrow(data)] <- tail(WIL2_20_fix$WC_100cm[!is.na(WIL2_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_20_fix$WC_100cm[idx] <- (WIL2_20_fix$WC_100cm[r$starts[i]] + WIL2_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Add them back into the full dataset 
+WIL2_20_later <- filter(WIL2_20, Date_time < "2020-04-27 05:20:01")
+WIL2_20_end <- filter(WIL2_20, Date_time > "2020-05-01 15:00:01")
+WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
 
 #Remove glitch starting in September
 #=================================================================================
