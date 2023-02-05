@@ -62,7 +62,7 @@ UQL1_2017_2019 <- data17_19 %>% bind_rows()
 UQL1 <- rbind(UQL1_2017_2019, UQL1_2019_2021)
 
 #Write the csv
-write.csv(UQL1,"/Volumes/GoogleDrive/Shared drives/Caspar Data/Soil Moisture/Working_data/UQL/UQL1.csv" ) #this writes a csv file and sends it to the working folder
+write.csv(UQL1,"~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/UQL/UQL1.csv" ) #this writes a csv file and sends it to the working folder
 
 #QA/QC FOR WIL1
 ###############################################################################################################
@@ -104,7 +104,26 @@ UQL1_18$WC_30cm <- as.numeric(UQL1_18$WC_30cm)
 UQL1_18$WC_100cm <- as.numeric(UQL1_18$WC_100cm)
 UQL1_18$Date_time<- mdy_hms(UQL1_18$Date_time)
 
-#Remove weird values
+#15 cm 
+############################################################################
+
+#Calibrate 
+UQL1_18_fix <- filter(UQL1_18, Date_time > "2018-08-21 1:00:01")
+UQL1_18_fix <- filter(UQL1_18_fix, Date_time < "2018-09-16 03:50:01")
+
+Soil <- ggplot(data = subset(UQL1_18_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_15cm, color = "lightblue"))
+Soil 
+
+UQL1_18_fix$WC_100cm <- UQL1_18_fix$WC_100cm + 0.4982
+
+#Recombine and then subset again
+UQL1_18_early <- filter(UQL1_18, Date_time < "2018-07-01 1:00:01")
+UQL1_18_late <- filter(UQL1_18, Date_time > "2018-12-31 23:50:01")
+UQL1_18 <- bind_rows(UQL1_18_early,UQL1_18_late, UQL1_18_fix )
+
+
+
 #30 cm 
 ################################################################
 UQL1_18$WC_30cm[UQL1_18$WC_30cm == 0.7184] <- NA
@@ -1772,6 +1791,6 @@ Soil + theme(axis.line = element_line(size = 0.4,
 dev.off()
 
 #Write the csv
-write.csv(UQL1_clean,"/Volumes/GoogleDrive/Shared drives/Caspar Data/Soil Moisture/Working_data/WIL_working/UQL1_clean.csv" ) #this writes a csv file and sends it to the working folder
+write.csv(UQL1_clean,"~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/UQL/UQL1_clean.csv" ) #this writes a csv file and sends it to the working folder
 
 
