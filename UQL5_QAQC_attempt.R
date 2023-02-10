@@ -2004,6 +2004,7 @@ UQL5_20_early <- filter(UQL5_20, Date_time < "2020-10-16 20:00:01")
 UQL5_20_late <- filter(UQL5_20, Date_time > "2020-10-26 00:00:01")
 UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
+
 #Remove drips by subsetting
 #=============================================================================
 UQL5_20_fix <- filter(UQL5_20, Date_time > "2020-10-25 23:50:01")
@@ -5517,35 +5518,6 @@ UQL5_21_early <- filter(UQL5_21, Date_time < "2021-03-07 20:00:01")
 UQL5_21_late <- filter(UQL5_21, Date_time > "2021-03-18 00:00:01")
 UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
 
-#Subset to fix early year drips
-#=============================================================================
-UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-04-28 20:00:01")
-UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-05-28 00:00:01")
-
-Soil <- ggplot(data = subset(UQL5_21_fix, !is.na(Date_time)), aes(x = Date_time)) + 
-  geom_line(aes(y = WC_30cm, color = "blue")) + 
-  geom_line(aes(y = WC_15cm, color = "lightblue"))
-Soil 
-
-UQL5_21_fix <- UQL5_21_fix %>% 
-  arrange(Date_time) %>% 
-  mutate(
-    diff=WC_30cm-lag(WC_30cm),
-    increase=scales::percent(diff / lag(WC_30cm))
-  ) %>%
-  filter(row_number()!=1)
-#Make increase column not a percent 
-UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
-
-UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
-                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
-                                                     WC_30cm))
-
-#Recombine
-UQL5_21_early <- filter(UQL5_21, Date_time < "2021-03-07 20:00:01")
-UQL5_21_late <- filter(UQL5_21, Date_time > "2021-03-18 00:00:01")
-UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
-
 
 #100 cm 
 ################################################################
@@ -5588,6 +5560,18 @@ UQL5_21_fix$WC_100cm[UQL5_21_fix$WC_100cm > 0] <- NA
 UQL5_21_early <- filter(UQL5_21, Date_time < "2021-06-27 18:00:01")
 UQL5_21_late <- filter(UQL5_21, Date_time > "2021-07-02 13:40:01")
 UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Missing dates at end of year
+#=====================================================================================
+#Replace missing dates with NAs from 07/25 to 08/10
+#========================================================================
+insertDF <- as.data.frame(matrix(data = NA, nrow = 15, ncol = 5))
+colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
+Date_time <- seq(as.Date("2021-07-26"), as.Date("2021-08-09"),"days")
+Date <- as.data.frame(Date_time) 
+insertDF <- cbind(Date, insertDF)
+
+UQL5_21 <- insertRows(UQL5_21, c(1:16), new = insertDF)
 
 #Plot again 
 Soil <- ggplot(data = subset(UQL5_21, !is.na(Date_time)), aes(x = Date_time)) + 
