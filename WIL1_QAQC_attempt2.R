@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 02/09/2023
-#Date last edited: 02/09/2023
+#Date last edited: 02/10/2023
 #Description: QA/QC WIL 1, this is the second cleaning because the first file was hard to work with 
 #because of poor coding 
 
@@ -1028,5 +1028,23 @@ Soil <- ggplot(data = subset(WIL1_21, !is.na(Date_time)), aes(x = Date_time)) +
   geom_line(aes(y = WC_15cm, color = "lightblue"))
 Soil 
 
-#Write the csv
-write.csv(WIL1,"~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/WIL/WIL1_clean2.csv" ) #this writes a csv file and sends it to the working folder
+#Merge and plot 
+##################################################################################
+#Combine all of the UQL2 dataframes/years into 1 dataframe 
+
+#Merge 2017 and 2018
+
+#Merge the merged with 2020 
+WIL1_QAQC2clean <- merge(WIL1_18, WIL1_19, by = c("Date_time", "WC_15cm", "WC_30cm", "WC_100cm"), 
+                    all.x = TRUE, all.y = TRUE)
+
+#Merge the merged with 2021
+WIL1_QAQC2clean <- merge(WIL1_QAQC2clean, WIL1_20, by = c("Date_time", "WC_15cm", "WC_30cm", "WC_100cm"), 
+                    all.x = TRUE, all.y = TRUE)
+
+#Merge the merged with 2021
+WIL1_QAQC2clean <- merge(WIL1_QAQC2clean, WIL1_21, by = c("Date_time", "WC_15cm", "WC_30cm", "WC_100cm"), 
+                    all.x = TRUE, all.y = TRUE)
+WIL1_QAQC2clean <- select(WIL1_QAQC2clean, Date_time, WC_15cm, WC_30cm, WC_100cm)
+
+write.csv(WIL1_QAQC2clean,"~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/WIL/WIL1_QAQC2clean.csv" ) #this writes a csv file and sends it to the working folder
