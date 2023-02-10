@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/26/2022
-#Date last edited: 02/06/2022
+#Date last edited: 02/09/2022
 #Description: QA/QC UQL 5
 
 #Attach dependencies 
@@ -166,7 +166,6 @@ for(i in r$i){
 
 UQL5_18_early <- filter(UQL5_18, Date_time < "2018-02-01 00:00:01")
 UQL5_18_late <- filter(UQL5_18, Date_time > "2018-02-20 00:00:01")
-
 UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
 #Fix drips in 15 cm
@@ -202,7 +201,6 @@ for(i in r$i){
 
 UQL5_18_early <- filter(UQL5_18, Date_time < "2018-02-01 00:00:01")
 UQL5_18_late <- filter(UQL5_18, Date_time > "2018-03-01 00:00:01")
-
 UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
 #Fix drips in 15 cm in May 
@@ -238,7 +236,6 @@ for(i in r$i){
 
 UQL5_18_early <- filter(UQL5_18, Date_time < "2018-05-15 00:00:01")
 UQL5_18_late <- filter(UQL5_18, Date_time > "2018-05-30 00:00:01")
-
 UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
 #Fix drips in 15 cm in May 
@@ -274,7 +271,6 @@ for(i in r$i){
 
 UQL5_18_early <- filter(UQL5_18, Date_time < "2018-06-01 00:00:01")
 UQL5_18_late <- filter(UQL5_18, Date_time > "2018-06-11 00:00:01")
-
 UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
 #Fix drips in 15 cm in July
@@ -311,7 +307,6 @@ for(i in r$i){
 
 UQL5_18_early <- filter(UQL5_18, Date_time < "2018-07-01 00:00:01")
 UQL5_18_late <- filter(UQL5_18, Date_time > "2018-07-09 00:00:01")
-
 UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
 #Fix drips in 15 cm in July
@@ -347,7 +342,6 @@ for(i in r$i){
 
 UQL5_18_early <- filter(UQL5_18, Date_time < "2018-07-09 00:00:01")
 UQL5_18_late <- filter(UQL5_18, Date_time > "2018-07-16 00:00:01")
-
 UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
 #Fix drips in 15 cm in Novemberish
@@ -383,7 +377,6 @@ for(i in r$i){
 
 UQL5_18_early <- filter(UQL5_18, Date_time < "2018-11-12 00:00:01")
 UQL5_18_late <- filter(UQL5_18, Date_time > "2018-11-22 00:00:01")
-
 UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
 #Fix drips in 15 cm in Novemberish
@@ -419,7 +412,6 @@ for(i in r$i){
 
 UQL5_18_early <- filter(UQL5_18, Date_time < "2018-11-21 00:00:01")
 UQL5_18_late <- filter(UQL5_18, Date_time > "2018-11-22 00:00:01")
-
 UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
 #Fix drips in 15 cm in Novemberish
@@ -455,7 +447,6 @@ for(i in r$i){
 
 UQL5_18_early <- filter(UQL5_18, Date_time < "2018-08-06 00:00:01")
 UQL5_18_late <- filter(UQL5_18, Date_time > "2018-08-13 00:00:01")
-
 UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
 #Fix drips in 15 cm in Novemberish
@@ -491,7 +482,6 @@ for(i in r$i){
 
 UQL5_18_early <- filter(UQL5_18, Date_time < "2018-10-01 00:00:01")
 UQL5_18_late <- filter(UQL5_18, Date_time > "2018-10-02 00:00:01")
-
 UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
 #Fix drips in 15 cm in Novemberish
@@ -998,12 +988,52 @@ UQL5_18_fix$WC_100cm[UQL5_18_fix$WC_100cm > 0.304] <- NA
 
 UQL5_18_early <- filter(UQL5_18, Date_time < "2018-07-01 00:00:01")
 UQL5_18_late <- filter(UQL5_18, Date_time > "2018-08-20 00:00:01")
+UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
+#Remove upward swoop after missing data
+#==============================================================================
+UQL5_18_fix <- filter(UQL5_18, Date_time > "2018-05-20 00:00:01")
+UQL5_18_fix <- filter(UQL5_18_fix, Date_time < "2018-05-28 12:00:01")
+
+UQL5_18_fix$WC_100cm[UQL5_18_fix$WC_100cm < 0.29] <- NA
+
+#Recombine
+UQL5_18_early <- filter(UQL5_18, Date_time < "2018-05-20 00:00:01")
+UQL5_18_late <- filter(UQL5_18, Date_time > "2018-05-28 12:00:01")
+UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
+
+#Remove upward swoop after missing data
+#==============================================================================
+UQL5_18_fix <- filter(UQL5_18, Date_time > "2018-05-28 00:00:01")
+UQL5_18_fix <- filter(UQL5_18_fix, Date_time < "2018-06-02 08:00:01")
+
+UQL5_18_fix$WC_100cm[UQL5_18_fix$WC_100cm < 0.284] <- NA
+
+#Recombine
+UQL5_18_early <- filter(UQL5_18, Date_time < "2018-05-28 00:00:01")
+UQL5_18_late <- filter(UQL5_18, Date_time > "2018-06-02 08:00:01")
+UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
+
+#Remove upward swoop after missing data
+#==============================================================================
+UQL5_18_fix <- filter(UQL5_18, Date_time > "2018-06-02 00:00:01")
+UQL5_18_fix <- filter(UQL5_18_fix, Date_time < "2018-06-22 08:00:01")
+
+UQL5_18_fix$WC_100cm[UQL5_18_fix$WC_100cm < 0.2745] <- NA
+
+#Recombine
+UQL5_18_early <- filter(UQL5_18, Date_time < "2018-06-02 00:00:01")
+UQL5_18_late <- filter(UQL5_18, Date_time > "2018-06-22 08:00:01")
 UQL5_18 <- bind_rows(UQL5_18_late, UQL5_18_early, UQL5_18_fix)
 
 #Fix glitch in 100 cm
 #================================================================================================
 UQL5_18$WC_100cm[UQL5_18$WC_100cm > 0.339049 & UQL5_18$WC_100cm < 0.339051] <- NA
+
+#Fix other glitch in 100 cm 
+#================================================================================
+UQL5_18$WC_100cm[UQL5_18$WC_100cm > 0.35649 & UQL5_18$WC_100cm < 0.35656] <- NA
+UQL5_18$WC_100cm[UQL5_18$WC_100cm > 0.28029 & UQL5_18$WC_100cm < 0.28031] <- NA
 
 #Replace missing dates
 #=============================================================================
@@ -1108,7 +1138,6 @@ for(i in r$i){
 #Recombine
 UQL5_19_early <- filter(UQL5_19, Date_time < "2019-08-19 00:00:01")
 UQL5_19_late <- filter(UQL5_19, Date_time > "2019-09-01 18:00:01")
-
 UQL5_19 <- bind_rows(UQL5_19_late, UQL5_19_early, UQL5_19_fix)
 
 #30 cm 
@@ -1187,6 +1216,90 @@ for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   UQL5_20$WC_15cm[idx] <- (UQL5_20$WC_15cm[r$starts[i]] + UQL5_20$WC_15cm[r$ends[i]])/2
 }
+
+#Calibrate 
+#=========================================================================
+UQL5_20_fix <- filter(UQL5_20, Date_time > "2020-08-31 08:20:01")
+UQL5_20_fix <- filter(UQL5_20_fix, Date_time < "2020-09-09 20:20:01")
+
+UQL5_20_fix$WC_15cm <- UQL5_20_fix$WC_15cm + 0.0117
+
+#Recombine
+UQL5_20_early <- filter(UQL5_20, Date_time < "2020-08-31 08:20:01")
+UQL5_20_late <- filter(UQL5_20, Date_time > "2020-09-09 20:20:01")
+UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
+
+#Remove glitches
+#============================================================================
+UQL5_20_fix <- filter(UQL5_20, Date_time > "2020-08-16 08:20:01")
+UQL5_20_fix <- filter(UQL5_20_fix, Date_time < "2020-09-05 00:20:01")
+
+UQL5_20_fix$WC_15cm[UQL5_20_fix$WC_15cm < 0.274 | UQL5_20_fix$WC_15cm > 0.281] <- NA
+missing <- which(is.na(UQL5_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL5_20_fix$WC_15cm[1] <- head(UQL5_20_fix$WC_15cm[!is.na(UQL5_20_fix$WC_15cm)],1)
+}
+if(nrow(UQL5_20_fix) %in% missing){
+  UQL5_20_fix$WC_15cm[nrow(data)] <- tail(UQL5_20_fix$WC_15cm[!is.na(UQL5_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_20_fix$WC_15cm[idx] <- (UQL5_20_fix$WC_15cm[r$starts[i]] + UQL5_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+UQL5_20_early <- filter(UQL5_20, Date_time < "2020-08-16 08:20:01")
+UQL5_20_late <- filter(UQL5_20, Date_time > "2020-09-05 00:20:01")
+UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
+
+#Remove glitches
+#============================================================================
+UQL5_20_fix <- filter(UQL5_20, Date_time > "2020-08-31 08:20:01")
+UQL5_20_fix <- filter(UQL5_20_fix, Date_time < "2020-09-05 00:20:01")
+
+UQL5_20_fix$WC_15cm[UQL5_20_fix$WC_15cm > 0.279] <- NA
+missing <- which(is.na(UQL5_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL5_20_fix$WC_15cm[1] <- head(UQL5_20_fix$WC_15cm[!is.na(UQL5_20_fix$WC_15cm)],1)
+}
+if(nrow(UQL5_20_fix) %in% missing){
+  UQL5_20_fix$WC_15cm[nrow(data)] <- tail(UQL5_20_fix$WC_15cm[!is.na(UQL5_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_20_fix$WC_15cm[idx] <- (UQL5_20_fix$WC_15cm[r$starts[i]] + UQL5_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+UQL5_20_early <- filter(UQL5_20, Date_time < "2020-08-31 08:20:01")
+UQL5_20_late <- filter(UQL5_20, Date_time > "2020-09-05 00:20:01")
+UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
 #30 cm 
 ################################################################
@@ -1326,9 +1439,7 @@ for(i in r$i){
 }
 
 UQL5_20_early <- filter(UQL5_20, Date_time < "2020-11-07 00:00:01")
-
 UQL5_20_late <- filter(UQL5_20, Date_time > "2020-11-13 00:00:01")
-
 UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
 #Remove drips by subsetting
@@ -1363,9 +1474,7 @@ for(i in r$i){
 }
 
 UQL5_20_early <- filter(UQL5_20, Date_time < "2020-11-20 00:00:01")
-
 UQL5_20_late <- filter(UQL5_20, Date_time > "2020-12-13 00:00:01")
-
 UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
 #Remove drips by subsetting
@@ -1449,7 +1558,6 @@ UQL5_20_fix <- transform(UQL5_20_fix, WC_30cm=ifelse(incr < -0.001,
 
 UQL5_20_early <- filter(UQL5_20, Date_time < "2020-11-13 12:00:01")
 UQL5_20_late <- filter(UQL5_20, Date_time > "2020-11-25 00:00:01")
-
 UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
 #Remove drips by subsetting
@@ -1485,7 +1593,6 @@ for(i in r$i){
 
 UQL5_20_early <- filter(UQL5_20, Date_time < "2020-11-23 12:00:01")
 UQL5_20_late <- filter(UQL5_20, Date_time > "2020-11-30 00:00:01")
-
 UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
 #Remove drips by subsetting
@@ -1521,7 +1628,6 @@ for(i in r$i){
 
 UQL5_20_early <- filter(UQL5_20, Date_time < "2020-11-29 12:00:01")
 UQL5_20_late <- filter(UQL5_20, Date_time > "2020-12-07 00:00:01")
-
 UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
 #Remove drips by subsetting
@@ -1557,7 +1663,6 @@ for(i in r$i){
 
 UQL5_20_early <- filter(UQL5_20, Date_time < "2020-11-07 12:00:01")
 UQL5_20_late <- filter(UQL5_20, Date_time > "2020-11-09 00:00:01")
-
 UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
 #Remove drips by subsetting
@@ -1591,9 +1696,9 @@ for(i in r$i){
   UQL5_20_fix$WC_30cm[idx] <- (UQL5_20_fix$WC_30cm[r$starts[i]] + UQL5_20_fix$WC_30cm[r$ends[i]])/2
 }
 
+#Recombine
 UQL5_20_early <- filter(UQL5_20, Date_time < "2020-11-13 07:00:01")
 UQL5_20_late <- filter(UQL5_20, Date_time > "2020-11-19 00:00:01")
-
 UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
 #Remove drips by subsetting
@@ -1775,17 +1880,12 @@ UQL5_20_fix <- transform(UQL5_20_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0
 
 UQL5_20_early <- filter(UQL5_20, Date_time < "2020-12-12 10:00:01")
 UQL5_20_late <- filter(UQL5_20, Date_time > "2020-12-22 00:00:01")
-
 UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
 #Remove drips by subsetting
 #=============================================================================
 UQL5_20_fix <- filter(UQL5_20, Date_time > "2020-12-22 10:00:01")
 UQL5_20_fix <- filter(UQL5_20_fix, Date_time < "2020-12-31 00:00:01")
-
-Soil <- ggplot(data = subset(UQL5_20_fix, !is.na(Date_time)), aes(x = Date_time)) + 
-  geom_line(aes(y = WC_30cm, color = "navyblue")) 
-Soil 
 
 #Get rid of increases
 UQL5_20_fix <- UQL5_20_fix %>% 
@@ -1830,7 +1930,90 @@ UQL5_20_fix <- transform(UQL5_20_fix, WC_30cm=ifelse(incr < -0.01,
 
 UQL5_20_early <- filter(UQL5_20, Date_time < "2020-12-01 12:00:01")
 UQL5_20_late <- filter(UQL5_20, Date_time > "2020-12-20 00:00:01")
+UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
+#Remove drips by subsetting
+#=============================================================================
+UQL5_20_fix <- filter(UQL5_20, Date_time > "2020-10-13 07:00:01")
+UQL5_20_fix <- filter(UQL5_20_fix, Date_time < "2020-11-01 00:00:01")
+
+UQL5_20_fix$WC_30cm[UQL5_20_fix$WC_30cm > 0.245] <- NA
+missing <- which(is.na(UQL5_20_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL5_20_fix$WC_30cm[1] <- head(UQL5_20_fix$WC_30cm[!is.na(UQL5_20_fix$WC_30cm)],1)
+}
+if(nrow(UQL5_20_fix) %in% missing){
+  UQL5_20_fix$WC_30cm[nrow(data)] <- tail(UQL5_20_fix$WC_30cm[!is.na(UQL5_20_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_20_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_20_fix$WC_30cm[idx] <- (UQL5_20_fix$WC_30cm[r$starts[i]] + UQL5_20_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+UQL5_20_early <- filter(UQL5_20, Date_time < "2020-10-13 07:00:01")
+UQL5_20_late <- filter(UQL5_20, Date_time > "2020-11-01 00:00:01")
+UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
+
+#Remove drips by subsetting
+#=============================================================================
+UQL5_20_fix <- filter(UQL5_20, Date_time > "2020-10-16 20:00:01")
+UQL5_20_fix <- filter(UQL5_20_fix, Date_time < "2020-10-26 00:00:01")
+
+UQL5_20_fix$WC_30cm[UQL5_20_fix$WC_30cm > 0.231 | UQL5_20_fix$WC_30cm < 0.225] <- NA
+missing <- which(is.na(UQL5_20_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL5_20_fix$WC_30cm[1] <- head(UQL5_20_fix$WC_30cm[!is.na(UQL5_20_fix$WC_30cm)],1)
+}
+if(nrow(UQL5_20_fix) %in% missing){
+  UQL5_20_fix$WC_30cm[nrow(data)] <- tail(UQL5_20_fix$WC_30cm[!is.na(UQL5_20_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_20_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_20_fix$WC_30cm[idx] <- (UQL5_20_fix$WC_30cm[r$starts[i]] + UQL5_20_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+UQL5_20_early <- filter(UQL5_20, Date_time < "2020-10-16 20:00:01")
+UQL5_20_late <- filter(UQL5_20, Date_time > "2020-10-26 00:00:01")
+UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
+
+#Remove drips by subsetting
+#=============================================================================
+UQL5_20_fix <- filter(UQL5_20, Date_time > "2020-10-25 23:50:01")
+UQL5_20_fix <- filter(UQL5_20_fix, Date_time < "2020-12-31 23:50:01")
+
+UQL5_20_fix$WC_30cm <- UQL5_20_fix$WC_30cm + 0.007
+
+#Recombine
+UQL5_20_early <- filter(UQL5_20, Date_time < "2020-10-25 23:50:01")
+UQL5_20_late <- filter(UQL5_20, Date_time > "2020-12-31 23:50:01")
 UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_fix, UQL5_20_late)
 
 #100 cm 
@@ -1991,6 +2174,52 @@ UQL5_20_early <- filter(UQL5_20, Date_time < "2020-11-20 12:00:01")
 UQL5_20_late <- filter(UQL5_20, Date_time > "2020-12-05 00:00:01")
 UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_late, UQL5_20_fix)
 
+#Remove 100 cm drip in November/December 
+#================================================================================================
+UQL5_20_fix <- filter(UQL5_20, Date_time > "2020-11-26 02:00:01")
+UQL5_20_fix <- filter(UQL5_20_fix, Date_time < "2020-11-30 00:00:01")
+
+UQL5_20_fix$WC_100cm[UQL5_20_fix$WC_100cm < 0.27 ] <- NA
+
+#Recombine
+UQL5_20_early <- filter(UQL5_20, Date_time < "2020-11-26 02:00:01")
+UQL5_20_late <- filter(UQL5_20, Date_time > "2020-11-30 00:00:01")
+UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_late, UQL5_20_fix)
+#Remove 100 cm drip in November/December 
+#================================================================================================
+UQL5_20_fix <- filter(UQL5_20, Date_time > "2020-11-27 06:00:01")
+UQL5_20_fix <- filter(UQL5_20_fix, Date_time < "2020-11-29 00:00:01")
+
+UQL5_20_fix$WC_100cm[UQL5_20_fix$WC_100cm < 0.285 | UQL5_20_fix$WC_100cm > 0.31] <- NA
+missing <- which(is.na(UQL5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  UQL5_20_fix$WC_100cm[1] <- head(UQL5_20_fix$WC_100cm[!is.na(UQL5_20_fix$WC_100cm)],1)
+}
+if(nrow(UQL5_20_fix) %in% missing){
+  UQL5_20_fix$WC_100cm[nrow(data)] <- tail(UQL5_20_fix$WC_100cm[!is.na(UQL5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_20_fix$WC_100cm[idx] <- (UQL5_20_fix$WC_100cm[r$starts[i]] + UQL5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+UQL5_20_early <- filter(UQL5_20, Date_time < "2020-11-27 06:00:01")
+UQL5_20_late <- filter(UQL5_20, Date_time > "2020-11-29 00:00:01")
+UQL5_20 <- bind_rows(UQL5_20_early, UQL5_20_late, UQL5_20_fix)
+
 #Plot again 
 Soil <- ggplot(data = subset(UQL5_20, !is.na(Date_time)), aes(x = Date_time)) + 
   geom_line(aes(y = WC_100cm, color = "navyblue")) + 
@@ -2036,6 +2265,178 @@ for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   UQL5_21$WC_15cm[idx] <- (UQL5_21$WC_15cm[r$starts[i]] + UQL5_21$WC_15cm[r$ends[i]])/2
 }
+
+#Remove glitch 
+#=========================================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-05-24 16:50:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-05-25 13:00:01")
+
+UQL5_21_fix$WC_15cm[UQL5_21_fix$WC_15cm > 0] <- NA
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-05-24 16:50:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-05-25 13:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Remove glitch 
+#=========================================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-06-09 16:50:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-06-13 13:00:01")
+
+UQL5_21_fix$WC_15cm[UQL5_21_fix$WC_15cm < 0.253] <- NA
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-06-09 16:50:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-06-13 13:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Remove glitch 
+#=========================================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-06-13 16:50:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-06-15 13:00:01")
+
+UQL5_21_fix$WC_15cm[UQL5_21_fix$WC_15cm < 0.25] <- NA
+missing <- which(is.na(UQL5_21_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL5_21_fix$WC_15cm[1] <- head(UQL5_21_fix$WC_15cm[!is.na(UQL5_21_fix$WC_15cm)],1)
+}
+if(nrow(UQL5_21_fix) %in% missing){
+  UQL5_21_fix$WC_15cm[nrow(data)] <- tail(UQL5_21_fix$WC_15cm[!is.na(UQL5_21_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_21_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_21_fix$WC_15cm[idx] <- (UQL5_21_fix$WC_15cm[r$starts[i]] + UQL5_21_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-06-13 16:50:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-06-15 13:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Remove glitch 
+#=========================================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-07-01 16:50:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-07-09 13:00:01")
+
+UQL5_21_fix$WC_15cm[UQL5_21_fix$WC_15cm < 0.23] <- NA
+missing <- which(is.na(UQL5_21_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL5_21_fix$WC_15cm[1] <- head(UQL5_21_fix$WC_15cm[!is.na(UQL5_21_fix$WC_15cm)],1)
+}
+if(nrow(UQL5_21_fix) %in% missing){
+  UQL5_21_fix$WC_15cm[nrow(data)] <- tail(UQL5_21_fix$WC_15cm[!is.na(UQL5_21_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_21_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_21_fix$WC_15cm[idx] <- (UQL5_21_fix$WC_15cm[r$starts[i]] + UQL5_21_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-07-01 16:50:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-07-09 13:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Remove glitch 
+#=========================================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-07-09 16:50:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-07-27 13:00:01")
+
+UQL5_21_fix$WC_15cm[UQL5_21_fix$WC_15cm < 0.212] <- NA
+missing <- which(is.na(UQL5_21_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL5_21_fix$WC_15cm[1] <- head(UQL5_21_fix$WC_15cm[!is.na(UQL5_21_fix$WC_15cm)],1)
+}
+if(nrow(UQL5_21_fix) %in% missing){
+  UQL5_21_fix$WC_15cm[nrow(data)] <- tail(UQL5_21_fix$WC_15cm[!is.na(UQL5_21_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_21_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_21_fix$WC_15cm[idx] <- (UQL5_21_fix$WC_15cm[r$starts[i]] + UQL5_21_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-07-09 16:50:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-07-27 13:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Remove glitch 
+#=========================================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-07-30 16:50:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-08-06 00:00:01")
+
+UQL5_21_fix$WC_15cm[UQL5_21_fix$WC_15cm < 0.204] <- NA
+missing <- which(is.na(UQL5_21_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL5_21_fix$WC_15cm[1] <- head(UQL5_21_fix$WC_15cm[!is.na(UQL5_21_fix$WC_15cm)],1)
+}
+if(nrow(UQL5_21_fix) %in% missing){
+  UQL5_21_fix$WC_15cm[nrow(data)] <- tail(UQL5_21_fix$WC_15cm[!is.na(UQL5_21_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_21_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_21_fix$WC_15cm[idx] <- (UQL5_21_fix$WC_15cm[r$starts[i]] + UQL5_21_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-07-30 16:50:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-08-06 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Remove glitches
+#================================================================================
+UQL5_21$WC_15cm[UQL5_21$WC_15cm > 0.2931 & UQL5_21$WC_15cm < 0.2933] <- NA
 
 #30 cm 
 ################################################################
@@ -4395,6 +4796,41 @@ UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
 UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-08-08 20:00:01")
 UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-08-10 00:00:01")
 
+UQL5_21_fix$WC_30cm[UQL5_21_fix$WC_30cm < 0.2455] <- NA
+missing <- which(is.na(UQL5_21_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL5_21_fix$WC_30cm[1] <- head(UQL5_21_fix$WC_30cm[!is.na(UQL5_21_fix$WC_30cm)],1)
+}
+if(nrow(UQL5_21_fix) %in% missing){
+  UQL5_21_fix$WC_30cm[nrow(data)] <- tail(UQL5_21_fix$WC_30cm[!is.na(UQL5_21_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_21_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_21_fix$WC_30cm[idx] <- (UQL5_21_fix$WC_30cm[r$starts[i]] + UQL5_21_fix$WC_30cm[r$ends[i]])/2
+}
+
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-08-08 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-08-10 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-08-08 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-08-10 00:00:01")
+
 Soil <- ggplot(data = subset(UQL5_21_fix, !is.na(Date_time)), aes(x = Date_time)) + 
   geom_line(aes(y = WC_30cm, color = "blue")) 
 Soil 
@@ -4429,6 +4865,688 @@ UQL5_21_early <- filter(UQL5_21, Date_time < "2021-08-08 20:00:01")
 UQL5_21_late <- filter(UQL5_21, Date_time > "2021-08-10 00:00:01")
 UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
 
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-04-01 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-04-15 00:00:01")
+
+UQL5_21_fix$WC_30cm[UQL5_21_fix$WC_30cm > 0.325] <- NA
+missing <- which(is.na(UQL5_21_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL5_21_fix$WC_30cm[1] <- head(UQL5_21_fix$WC_30cm[!is.na(UQL5_21_fix$WC_30cm)],1)
+}
+if(nrow(UQL5_21_fix) %in% missing){
+  UQL5_21_fix$WC_30cm[nrow(data)] <- tail(UQL5_21_fix$WC_30cm[!is.na(UQL5_21_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_21_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_21_fix$WC_30cm[idx] <- (UQL5_21_fix$WC_30cm[r$starts[i]] + UQL5_21_fix$WC_30cm[r$ends[i]])/2
+}
+
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-04-01 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-04-15 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-04-01 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-04-05 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.001 | incr > 0.001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/9, 9), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-04-01 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-04-05 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-04-05 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-04-15 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.001 | incr > 0.001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/9, 9), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-04-05 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-04-15 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-04-15 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-04-25 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.001 | incr > 0.001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/9, 9), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-04-15 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-04-25 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-04-25 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-05-05 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/9, 9), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-04-25 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-05-05 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-05-05 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-05-15 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/9, 9), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-05-05 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-05-15 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-05-15 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-05-25 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/6, 6), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-05-15 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-05-25 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-05-25 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-06-05 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/12, 12), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-05-25 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-06-05 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-06-05 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-06-15 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-06-05 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-06-15 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-06-15 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-06-25 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-06-15 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-06-25 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-06-23 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-06-30 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-06-23 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-06-30 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-07-02 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-07-10 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-07-02 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-07-10 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-07-10 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-07-15 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-07-10 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-07-15 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-07-13 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-07-25 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-07-13 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-07-25 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-07-24 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-08-10 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-07-24 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-08-10 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-04-01 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-04-06 00:00:01")
+
+UQL5_21_fix$WC_30cm[UQL5_21_fix$WC_30cm > 0.3225 | UQL5_21_fix$WC_30cm < 0.308] <- NA
+missing <- which(is.na(UQL5_21_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL5_21_fix$WC_30cm[1] <- head(UQL5_21_fix$WC_30cm[!is.na(UQL5_21_fix$WC_30cm)],1)
+}
+if(nrow(UQL5_21_fix) %in% missing){
+  UQL5_21_fix$WC_30cm[nrow(data)] <- tail(UQL5_21_fix$WC_30cm[!is.na(UQL5_21_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_21_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_21_fix$WC_30cm[idx] <- (UQL5_21_fix$WC_30cm[r$starts[i]] + UQL5_21_fix$WC_30cm[r$ends[i]])/2
+}
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-07-24 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-08-10 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-01-06 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-01-09 00:00:01")
+
+UQL5_21_fix$WC_30cm[UQL5_21_fix$WC_30cm < 0.32] <- NA
+missing <- which(is.na(UQL5_21_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL5_21_fix$WC_30cm[1] <- head(UQL5_21_fix$WC_30cm[!is.na(UQL5_21_fix$WC_30cm)],1)
+}
+if(nrow(UQL5_21_fix) %in% missing){
+  UQL5_21_fix$WC_30cm[nrow(data)] <- tail(UQL5_21_fix$WC_30cm[!is.na(UQL5_21_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_21_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_21_fix$WC_30cm[idx] <- (UQL5_21_fix$WC_30cm[r$starts[i]] + UQL5_21_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-01-06 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-01-09 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-01-12 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-01-14 00:00:01")
+
+UQL5_21_fix$WC_30cm[UQL5_21_fix$WC_30cm < 0.32] <- NA
+missing <- which(is.na(UQL5_21_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL5_21_fix$WC_30cm[1] <- head(UQL5_21_fix$WC_30cm[!is.na(UQL5_21_fix$WC_30cm)],1)
+}
+if(nrow(UQL5_21_fix) %in% missing){
+  UQL5_21_fix$WC_30cm[nrow(data)] <- tail(UQL5_21_fix$WC_30cm[!is.na(UQL5_21_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL5_21_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL5_21_fix$WC_30cm[idx] <- (UQL5_21_fix$WC_30cm[r$starts[i]] + UQL5_21_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-01-12 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-01-14 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+
+#Remove glitch
+#========================================================================
+UQL5_21$WC_30cm[UQL5_21$WC_30cm == 0.3245] <- NA
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-01-19 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-01-31 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-01-19 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-01-31 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-01-30 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-02-05 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-01-30 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-02-05 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-02-04 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-02-15 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-02-04 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-02-15 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-02-15 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-02-25 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-02-15 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-02-25 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-02-23 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-03-01 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-02-23 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-03-01 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-02-28 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-03-08 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-02-28 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-03-08 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-03-07 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-03-18 00:00:01")
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-03-07 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-03-18 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+#Subset to fix early year drips
+#=============================================================================
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-04-28 20:00:01")
+UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-05-28 00:00:01")
+
+Soil <- ggplot(data = subset(UQL5_21_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_30cm, color = "blue")) + 
+  geom_line(aes(y = WC_15cm, color = "lightblue"))
+Soil 
+
+UQL5_21_fix <- UQL5_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL5_21_fix <- transform(UQL5_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL5_21_fix <- transform(UQL5_21_fix, WC_30cm=ifelse(incr < -0.0001 | incr > 0.0001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)),
+                                                     WC_30cm))
+
+#Recombine
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-03-07 20:00:01")
+UQL5_21_late <- filter(UQL5_21, Date_time > "2021-03-18 00:00:01")
+UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
+
+
 #100 cm 
 ################################################################
 UQL5_21$WC_100cm[UQL5_21$WC_100cm < 0.2] <- NA
@@ -4460,14 +5578,14 @@ for(i in r$i){
 
 #Get rid of glitch during missing dates and turn them into NAs
 #=====================================================================
-UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-06-30 00:00:01")
+UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-06-27 18:00:01")
 UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-07-02 13:40:01")
 
 UQL5_21_fix$WC_30cm[UQL5_21_fix$WC_30cm > 0] <- NA
 UQL5_21_fix$WC_15cm[UQL5_21_fix$WC_15cm > 0] <- NA
 UQL5_21_fix$WC_100cm[UQL5_21_fix$WC_100cm > 0] <- NA
 
-UQL5_21_early <- filter(UQL5_21, Date_time < "2021-07-01 00:00:01")
+UQL5_21_early <- filter(UQL5_21, Date_time < "2021-06-27 18:00:01")
 UQL5_21_late <- filter(UQL5_21, Date_time > "2021-07-02 13:40:01")
 UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
 
@@ -4522,5 +5640,6 @@ Soil + theme(axis.line = element_line(size = 0.4,
   theme(axis.title.y = element_text(family = "Times New Roman", size = 70)) +
   theme(axis.title.x = element_text(family = "Times New Roman", size = 70)) 
 dev.off()
+
 #Write the csv
 write.csv(UQL5_clean,"~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/UQL/UQL5_clean.csv" ) #this writes a csv file and sends it to the working folder
