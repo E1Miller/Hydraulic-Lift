@@ -4869,6 +4869,7 @@ UQL5_21 <- bind_rows(UQL5_21_late, UQL5_21_fix, UQL5_21_early)
 #Subset to fix early year drips
 #=============================================================================
 UQL5_21_fix <- filter(UQL5_21, Date_time > "2021-04-01 20:00:01")
+
 UQL5_21_fix <- filter(UQL5_21_fix, Date_time < "2021-04-15 00:00:01")
 
 UQL5_21_fix$WC_30cm[UQL5_21_fix$WC_30cm > 0.325] <- NA
