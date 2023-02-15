@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/25/2022
-#Date last edited: 02/06/2023
+#Date last edited: 02/15/2023
 #Description: QA/QC WIL 2
 
 #Attach dependencies 
@@ -1541,6 +1541,202 @@ for(i in r$i){
 #Recombine July with other dataset 
 WIL2_18_later <- filter(WIL2_18, Date_time < "2018-12-17 04:00:01")
 WIL2_18_end <- filter(WIL2_18, Date_time > "2018-12-20 00:50:01")
+WIL2_18 <- bind_rows(WIL2_18_later, WIL2_18_fix, WIL2_18_end)
+
+#Subset and remove drips
+#====================================================================
+WIL2_18_fix <- filter(WIL2_18, Date_time > "2018-02-17 04:00:01")
+WIL2_18_fix <- filter(WIL2_18_fix, Date_time < "2018-02-28 00:50:01")
+
+Soil <- ggplot(data = subset(WIL2_18_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_15cm), color = "lightblue") +
+  ylab(expression(paste("30 cm Water Content"))) + 
+  xlab(expression("Date"))  
+Soil 
+
+WIL2_18_fix$WC_15cm[WIL2_18_fix$WC_15cm < 0.341] <- NA
+missing <- which(is.na(WIL2_18_fix$WC_15cm))
+
+if(1 %in% missing){
+  WIL2_18_fix$WC_15cm[1] <- head(WIL2_18_fix$WC_15cm[!is.na(WIL2_18_fix$WC_15cm)],1)
+}
+if(nrow(WIL2_18_fix) %in% missing){
+  WIL2_18_fix$WC_15cm[nrow(data)] <- tail(WIL2_18_fix$WC_15cm[!is.na(WIL2_18_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_18_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_18_fix$WC_15cm[idx] <- (WIL2_18_fix$WC_15cm[r$starts[i]] + WIL2_18_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine July with other dataset 
+WIL2_18_later <- filter(WIL2_18, Date_time < "2018-02-17 04:00:01")
+WIL2_18_end <- filter(WIL2_18, Date_time > "2018-02-28 00:50:01")
+WIL2_18 <- bind_rows(WIL2_18_later, WIL2_18_fix, WIL2_18_end)
+
+#30 cm 
+#===========================================================================
+
+#Subset and remove drips
+#===========================================================================
+WIL2_18_fix <- filter(WIL2_18, Date_time > "2018-08-23 04:00:01")
+WIL2_18_fix <- filter(WIL2_18_fix, Date_time < "2018-09-03 00:50:01")
+
+WIL2_18_fix$WC_30cm[WIL2_18_fix$WC_30cm > 0.2775] <- NA
+missing <- which(is.na(WIL2_18_fix$WC_30cm))
+
+if(1 %in% missing){
+  WIL2_18_fix$WC_30cm[1] <- head(WIL2_18_fix$WC_30cm[!is.na(WIL2_18_fix$WC_30cm)],1)
+}
+if(nrow(WIL2_18_fix) %in% missing){
+  WIL2_18_fix$WC_30cm[nrow(data)] <- tail(WIL2_18_fix$WC_30cm[!is.na(WIL2_18_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_18_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_18_fix$WC_30cm[idx] <- (WIL2_18_fix$WC_30cm[r$starts[i]] + WIL2_18_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine July with other dataset 
+WIL2_18_later <- filter(WIL2_18, Date_time < "2018-08-23 04:00:01")
+WIL2_18_end <- filter(WIL2_18, Date_time > "2018-09-03 00:50:01")
+WIL2_18 <- bind_rows(WIL2_18_later, WIL2_18_fix, WIL2_18_end)
+
+#Subset and remove drips
+#===========================================================================
+WIL2_18_fix <- filter(WIL2_18, Date_time > "2018-09-17 04:00:01")
+WIL2_18_fix <- filter(WIL2_18_fix, Date_time < "2018-09-23 00:50:01")
+
+WIL2_18_fix$WC_30cm[WIL2_18_fix$WC_30cm > 0.2725] <- NA
+missing <- which(is.na(WIL2_18_fix$WC_30cm))
+
+if(1 %in% missing){
+  WIL2_18_fix$WC_30cm[1] <- head(WIL2_18_fix$WC_30cm[!is.na(WIL2_18_fix$WC_30cm)],1)
+}
+if(nrow(WIL2_18_fix) %in% missing){
+  WIL2_18_fix$WC_30cm[nrow(data)] <- tail(WIL2_18_fix$WC_30cm[!is.na(WIL2_18_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_18_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_18_fix$WC_30cm[idx] <- (WIL2_18_fix$WC_30cm[r$starts[i]] + WIL2_18_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine July with other dataset 
+WIL2_18_later <- filter(WIL2_18, Date_time < "2018-09-17 04:00:01")
+WIL2_18_end <- filter(WIL2_18, Date_time > "2018-09-23 00:50:01")
+WIL2_18 <- bind_rows(WIL2_18_later, WIL2_18_fix, WIL2_18_end)
+
+#Subset and remove drips
+#===========================================================================
+WIL2_18_fix <- filter(WIL2_18, Date_time > "2018-10-03 04:00:01")
+WIL2_18_fix <- filter(WIL2_18_fix, Date_time < "2018-10-06 00:50:01")
+
+WIL2_18_fix$WC_30cm[WIL2_18_fix$WC_30cm < 0.27425] <- NA
+missing <- which(is.na(WIL2_18_fix$WC_30cm))
+
+if(1 %in% missing){
+  WIL2_18_fix$WC_30cm[1] <- head(WIL2_18_fix$WC_30cm[!is.na(WIL2_18_fix$WC_30cm)],1)
+}
+if(nrow(WIL2_18_fix) %in% missing){
+  WIL2_18_fix$WC_30cm[nrow(data)] <- tail(WIL2_18_fix$WC_30cm[!is.na(WIL2_18_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_18_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_18_fix$WC_30cm[idx] <- (WIL2_18_fix$WC_30cm[r$starts[i]] + WIL2_18_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine July with other dataset 
+WIL2_18_later <- filter(WIL2_18, Date_time < "2018-10-03 04:00:01")
+WIL2_18_end <- filter(WIL2_18, Date_time > "2018-10-06 00:50:01")
+WIL2_18 <- bind_rows(WIL2_18_later, WIL2_18_fix, WIL2_18_end)
+
+
+#Subset and remove drips
+#===========================================================================
+WIL2_18_fix <- filter(WIL2_18, Date_time > "2018-11-21 16:00:01")
+WIL2_18_fix <- filter(WIL2_18_fix, Date_time < "2018-12-06 00:50:01")
+
+Soil <- ggplot(data = subset(WIL2_18_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_30cm), color = "deepskyblue3") +
+  ylab(expression(paste("30 cm Water Content"))) + 
+  xlab(expression("Date"))  
+Soil 
+
+WIL2_18_fix$WC_30cm[WIL2_18_fix$WC_30cm < 0.2719] <- NA
+missing <- which(is.na(WIL2_18_fix$WC_30cm))
+
+if(1 %in% missing){
+  WIL2_18_fix$WC_30cm[1] <- head(WIL2_18_fix$WC_30cm[!is.na(WIL2_18_fix$WC_30cm)],1)
+}
+if(nrow(WIL2_18_fix) %in% missing){
+  WIL2_18_fix$WC_30cm[nrow(data)] <- tail(WIL2_18_fix$WC_30cm[!is.na(WIL2_18_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL2_18_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL2_18_fix$WC_30cm[idx] <- (WIL2_18_fix$WC_30cm[r$starts[i]] + WIL2_18_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine July with other dataset 
+WIL2_18_later <- filter(WIL2_18, Date_time < "2018-11-21 16:00:01")
+WIL2_18_end <- filter(WIL2_18, Date_time > "2018-12-06 00:50:01")
 WIL2_18 <- bind_rows(WIL2_18_later, WIL2_18_fix, WIL2_18_end)
 
 #Missing dates
@@ -4248,6 +4444,10 @@ WIL2_20 <- bind_rows(WIL2_20_later, WIL2_20_fix, WIL2_20_end)
 
 #Remove the missing dates
 #=========================================================================
+
+#Remove extra rows
+WIL2_20 <- WIL2_20 %>% select(1:6)
+
 #Replace missing dates with NAs - 05/15 to 06/05
 insertDF <- as.data.frame(matrix(data = NA, nrow = 20, ncol = 5))
 colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")

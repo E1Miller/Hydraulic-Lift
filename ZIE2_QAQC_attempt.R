@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/26/2022
-#Date last edited: 01/31/2023
+#Date last edited: 02/15/2023
 #Description: QA/QC ZIE 2
 
 #Attach dependencies 
@@ -1957,6 +1957,18 @@ for(i in r$i){
 ZIE2_19_early <- filter(ZIE2_19, Date_time < "2019-11-05 10:00:01")
 ZIE2_19_late <- filter(ZIE2_19, Date_time > "2019-11-18 01:00:0")
 ZIE2_19 <- bind_rows(ZIE2_19_late, ZIE2_19_early, ZIE2_19_fix)
+
+#Add in missing dates for beginning of year
+##################################################################################
+
+#Missing dates from 01/01 to 03/11
+insertDF <- as.data.frame(matrix(data = NA, nrow = 69, ncol = 5))
+colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
+Date_time <- seq(as.Date("2019-01-01"), as.Date("2019-03-10"),"days")
+Date <- as.data.frame(Date_time) 
+insertDF <- cbind(Date, insertDF)
+
+ZIE2_19<- insertRows(ZIE2_19, c(1:69), new = insertDF)
 
 #Plot again 
 Soil <- ggplot(data = subset(ZIE2_19, !is.na(Date_time)), aes(x = Date_time)) + 
@@ -5918,6 +5930,22 @@ for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   ZIE2_21$WC_100cm[idx] <- (ZIE2_21$WC_100cm[r$starts[i]] + ZIE2_21$WC_100cm[r$ends[i]])/2
 }
+
+#Remove glitch 
+#=================================================================================
+ZIE2_21_fix <- filter(ZIE2_21, Date_time > "2021-01-01 00:00:01")
+ZIE2_21_fix <- filter(ZIE2_21_fix, Date_time < "2021-01-21 08:30:01")
+
+Soil <- ggplot(data = subset(ZIE2_21_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_100cm, color = "navyblue")) 
+Soil
+
+ZIE2_21_fix$WC_100cm[ZIE2_21_fix$WC_100cm > 0.25] <- NA
+
+#Recombine
+ZIE2_21_early <- filter(ZIE2_21, Date_time < "2021-01-01 00:00:01")
+ZIE2_21_late <- filter(ZIE2_21, Date_time > "2021-01-21 08:30:01")
+ZIE2_21 <- bind_rows(ZIE2_21_early, ZIE2_21_late, ZIE2_21_fix)
 
 #Plot again 
 Soil <- ggplot(data = subset(ZIE2_21, !is.na(Date_time)), aes(x = Date_time)) + 
