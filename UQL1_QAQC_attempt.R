@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/26/2022
-#Date last edited: 02/05/2023
+#Date last edited: 02/13/2023
 #Description: QA/QC UQL 1
 
 #Attach dependencies 
@@ -62,7 +62,7 @@ UQL1_2017_2019 <- data17_19 %>% bind_rows()
 UQL1 <- rbind(UQL1_2017_2019, UQL1_2019_2021)
 
 #Write the csv
-write.csv(UQL1,"~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/UQL/UQL1.csv" ) #this writes a csv file and sends it to the working folder
+write.csv(UQL1,"/Volumes/GoogleDrive/Shared drives/Caspar Data/Soil Moisture/Working_data/UQL/UQL1.csv" ) #this writes a csv file and sends it to the working folder
 
 #QA/QC FOR WIL1
 ###############################################################################################################
@@ -104,26 +104,7 @@ UQL1_18$WC_30cm <- as.numeric(UQL1_18$WC_30cm)
 UQL1_18$WC_100cm <- as.numeric(UQL1_18$WC_100cm)
 UQL1_18$Date_time<- mdy_hms(UQL1_18$Date_time)
 
-#15 cm 
-############################################################################
-
-#Calibrate 
-UQL1_18_fix <- filter(UQL1_18, Date_time > "2018-08-21 1:00:01")
-UQL1_18_fix <- filter(UQL1_18_fix, Date_time < "2018-09-16 03:50:01")
-
-Soil <- ggplot(data = subset(UQL1_18_fix, !is.na(Date_time)), aes(x = Date_time)) + 
-  geom_line(aes(y = WC_15cm, color = "lightblue"))
-Soil 
-
-UQL1_18_fix$WC_100cm <- UQL1_18_fix$WC_100cm + 0.4982
-
-#Recombine and then subset again
-UQL1_18_early <- filter(UQL1_18, Date_time < "2018-07-01 1:00:01")
-UQL1_18_late <- filter(UQL1_18, Date_time > "2018-12-31 23:50:01")
-UQL1_18 <- bind_rows(UQL1_18_early,UQL1_18_late, UQL1_18_fix )
-
-
-
+#Remove weird values
 #30 cm 
 ################################################################
 UQL1_18$WC_30cm[UQL1_18$WC_30cm == 0.7184] <- NA
@@ -309,11 +290,14 @@ get_runs <- function(x){
 
 r <- get_runs(is.na(UQL1_19$WC_15cm))
 
-
 for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   UQL1_19$WC_15cm[idx] <- (UQL1_19$WC_15cm[r$starts[i]] + UQL1_19$WC_15cm[r$ends[i]])/2
 }
+
+#Remove glitch 
+#===================================================================
+UQL1_19$WC_15cm[UQL1_19$WC_15cm > 0.021049 & UQL1_19$WC_15cm < 0.021051] <- NA
 
 #30 cm 
 ################################################################
@@ -344,17 +328,22 @@ for(i in r$i){
   UQL1_19$WC_30cm[idx] <- (UQL1_19$WC_30cm[r$starts[i]] + UQL1_19$WC_30cm[r$ends[i]])/2
 }
 
+#Remove glitch
+#============================================================================
+UQL1_19$WC_30cm[UQL1_19$WC_30cm == 0.3461] <- NA
+
 #100 cm 
 ################################################################
-UQL1_19_fix <- UQL1_19[c(1:19093), ]
 
+#Calibrate
+#==============================================================================
+UQL1_19_fix <- filter(UQL1_19, Date_time < "2019-05-13 04:10:01")
 
+UQL1_19_fix$WC_100cm <- UQL1_19_fix$WC_100cm + 0.5082
 
-#Recombine
-#=============================
-#UQL1_19_late <- UQL1_19[c(19094:42338), ]
-
-#UQL1_19 <- bind_rows(UQL1_19_fix, UQL1_19_late)
+#Recombine and then subset again
+UQL1_19_early <- filter(UQL1_19, Date_time > "2019-05-13 04:10:01")
+UQL1_19 <- bind_rows(UQL1_19_early, UQL1_19_fix )
 
 #Plot again 
 Soil <- ggplot(data = subset(UQL1_19, !is.na(Date_time)), aes(x = Date_time)) + 
@@ -362,7 +351,6 @@ Soil <- ggplot(data = subset(UQL1_19, !is.na(Date_time)), aes(x = Date_time)) +
   geom_line(aes(y = WC_30cm, color = "blue")) + 
   geom_line(aes(y = WC_15cm, color = "lightblue"))
 Soil 
-
 
 #UQL1 2020
 ##################################################################################################
@@ -402,6 +390,7 @@ for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   UQL1_20$WC_15cm[idx] <- (UQL1_20$WC_15cm[r$starts[i]] + UQL1_20$WC_15cm[r$ends[i]])/2
 }
+
 #Fix drips 
 #===========================================================
 UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-10 1:00:01")
@@ -437,6 +426,295 @@ for(i in r$i){
 #Recombine and then subset again 
 UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-10 1:00:01")
 UQL1_20_late <- filter(UQL1_20, Date_time > "2020-10-01 1:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Calibrate 
+#=================================================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-07-01 04:50:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-07-05 09:50:01")
+
+UQL1_20_fix$WC_15cm <- UQL1_20_fix$WC_15cm + 0.0115
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-07-01 04:50:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-07-05 09:50:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Fix drips 
+#===========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-10 1:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-09-14 1:00:01")
+
+UQL1_20_fix$WC_15cm[UQL1_20_fix$WC_15cm < 0.2155] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_15cm[1] <- head(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_15cm[nrow(data)] <- tail(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_15cm))
+
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_15cm[idx] <- (UQL1_20_fix$WC_15cm[r$starts[i]] + UQL1_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-10 1:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-09-14 1:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Fix drips 
+#===========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-14 1:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-09-18 1:00:01")
+
+UQL1_20_fix$WC_15cm[UQL1_20_fix$WC_15cm < 0.214] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_15cm[1] <- head(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_15cm[nrow(data)] <- tail(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_15cm[idx] <- (UQL1_20_fix$WC_15cm[r$starts[i]] + UQL1_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-10 1:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-09-14 1:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Fix drips 
+#===========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-17 1:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-09-23 1:00:01")
+
+UQL1_20_fix$WC_15cm[UQL1_20_fix$WC_15cm < 0.213 | UQL1_20_fix$WC_15cm > 0.216] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_15cm[1] <- head(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_15cm[nrow(data)] <- tail(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_15cm[idx] <- (UQL1_20_fix$WC_15cm[r$starts[i]] + UQL1_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-17 1:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-09-23 1:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Fix drips 
+#===========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-22 1:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-09-25 1:00:01")
+
+UQL1_20_fix$WC_15cm[UQL1_20_fix$WC_15cm < 0.213] <- NA
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-17 1:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-09-23 1:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Fix drips 
+#===========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-28 1:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-09-30 1:00:01")
+
+UQL1_20_fix$WC_15cm[UQL1_20_fix$WC_15cm < 0.2114] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_15cm[1] <- head(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_15cm[nrow(data)] <- tail(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_15cm[idx] <- (UQL1_20_fix$WC_15cm[r$starts[i]] + UQL1_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-28 1:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-09-30 1:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Fix drips 
+#===========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-30 1:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-10-03 1:00:01")
+
+UQL1_20_fix$WC_15cm[UQL1_20_fix$WC_15cm < 0.209] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_15cm[1] <- head(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_15cm[nrow(data)] <- tail(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_15cm[idx] <- (UQL1_20_fix$WC_15cm[r$starts[i]] + UQL1_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-30 1:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-10-03 1:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Fix drips 
+#===========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-10-03 1:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-10-12 1:00:01")
+
+UQL1_20_fix$WC_15cm[UQL1_20_fix$WC_15cm < 0.2057] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_15cm[1] <- head(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_15cm[nrow(data)] <- tail(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_15cm[idx] <- (UQL1_20_fix$WC_15cm[r$starts[i]] + UQL1_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-10-03 1:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-10-12 1:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Fix drips 
+#===========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-11-02 1:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-11-06 1:00:01")
+
+UQL1_20_fix$WC_15cm[UQL1_20_fix$WC_15cm < 0.1875 | UQL1_20_fix$WC_15cm > 0.193] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_15cm[1] <- head(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_15cm[nrow(data)] <- tail(UQL1_20_fix$WC_15cm[!is.na(UQL1_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_15cm[idx] <- (UQL1_20_fix$WC_15cm[r$starts[i]] + UQL1_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-11-02 1:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-11-06 1:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Fix drips 
+#===========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-22 1:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-09-27 09:30:01")
+
+UQL1_20_fix$WC_15cm[UQL1_20_fix$WC_15cm < 0.212] <- NA
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-22 1:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-09-27 09:30:01")
 UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
 
 #30 cm 
@@ -732,10 +1010,6 @@ UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
 UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-05-26 16:00:01")
 UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-05-28 1:00:01")
 
-Soil <- ggplot(data = subset(UQL1_20_fix, !is.na(Date_time)), aes(x = Date_time)) + 
-  geom_line(aes(y = WC_30cm, color = "blue")) 
-Soil 
-
 UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm < 0.284] <- NA
 missing <- which(is.na(UQL1_20_fix$WC_30cm))
 
@@ -772,10 +1046,6 @@ UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
 #==========================================================
 UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-05-28 16:00:01")
 UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-06-01 1:00:01")
-
-Soil <- ggplot(data = subset(UQL1_20_fix, !is.na(Date_time)), aes(x = Date_time)) + 
-  geom_line(aes(y = WC_30cm, color = "blue")) 
-Soil 
 
 UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm < 0.28] <- NA
 missing <- which(is.na(UQL1_20_fix$WC_30cm))
@@ -851,10 +1121,6 @@ UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
 UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-11-02 00:30:01")
 UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-11-13 03:30:01")
 
-Soil <- ggplot(data = subset(UQL1_20_fix, !is.na(Date_time)), aes(x = Date_time)) + 
-  geom_line(aes(y = WC_30cm, color = "blue")) 
-Soil 
-
 UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm > 0.15] <- NA
 
 #Recombine and then subset again 
@@ -862,9 +1128,320 @@ UQL1_20_early <- filter(UQL1_20, Date_time < "2020-11-02 00:30:01")
 UQL1_20_late <- filter(UQL1_20, Date_time > "2020-11-13 03:30:01")
 UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
 
+#Remove glitch at beginning of year
+#===================================================================
+UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm < 0.274] <- NA
+
+#Subset to fix earlier May/June drips
+#==========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-04-01 16:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-04-06 1:00:01")
+
+UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm < 0.2993] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_30cm[1] <- head(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_30cm[nrow(data)] <- tail(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_30cm[idx] <- (UQL1_20_fix$WC_30cm[r$starts[i]] + UQL1_20_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-04-01 16:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-04-06 1:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Subset to fix earlier May/June drips
+#==========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-05-18 00:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-05-19 1:00:01")
+
+UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm < 0.3057] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_30cm[1] <- head(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_30cm[nrow(data)] <- tail(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_30cm[idx] <- (UQL1_20_fix$WC_30cm[r$starts[i]] + UQL1_20_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-05-18 00:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-05-19 1:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Subset to fix earlier May/June drips
+#==========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-05-19 10:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-05-20 10:00:01")
+
+UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm < 0.301] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_30cm[1] <- head(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_30cm[nrow(data)] <- tail(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_30cm[idx] <- (UQL1_20_fix$WC_30cm[r$starts[i]] + UQL1_20_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-05-19 10:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-05-20 10:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Subset to fix earlier May/June drips
+#==========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-05-20 10:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-05-21 06:00:01")
+
+UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm < 0.2985] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_30cm[1] <- head(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_30cm[nrow(data)] <- tail(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_30cm[idx] <- (UQL1_20_fix$WC_30cm[r$starts[i]] + UQL1_20_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-05-20 10:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-05-21 06:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Subset to fix earlier May/June drips
+#==========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-04 03:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-09-08 06:00:01")
+
+UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm < 0.1975] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_30cm[1] <- head(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_30cm[nrow(data)] <- tail(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_30cm[idx] <- (UQL1_20_fix$WC_30cm[r$starts[i]] + UQL1_20_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-04 03:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-09-08 06:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Calibrate
+#==========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-22 07:30:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-10-22 00:10:01")
+
+UQL1_20_fix$WC_30cm <- UQL1_20_fix$WC_30cm + 0.0047
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-22 07:30:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-10-22 00:10:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Subset to fix earlier May/June drips
+#==========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-22 03:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-09-26 06:00:01")
+
+UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm < 0.194] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_30cm[1] <- head(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_30cm[nrow(data)] <- tail(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_30cm[idx] <- (UQL1_20_fix$WC_30cm[r$starts[i]] + UQL1_20_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-22 03:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-09-26 06:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Subset to fix earlier May/June drips
+#==========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-22 03:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-09-26 06:00:01")
+
+UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm > 0.196] <- NA
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-22 03:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-09-26 06:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Subset to fix earlier May/June drips
+#==========================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-09-26 03:00:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-10-02 06:00:01")
+
+UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm < 0.1914] <- NA
+missing <- which(is.na(UQL1_20_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_20_fix$WC_30cm[1] <- head(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_20_fix) %in% missing){
+  UQL1_20_fix$WC_30cm[nrow(data)] <- tail(UQL1_20_fix$WC_30cm[!is.na(UQL1_20_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_20_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_20_fix$WC_30cm[idx] <- (UQL1_20_fix$WC_30cm[r$starts[i]] + UQL1_20_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-09-26 03:00:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-10-02 06:00:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
 #100 cm 
 ################################################################
 UQL1_20$WC_100cm[UQL1_20$WC_100cm == 0.7184] <- NA
+
+#Missing dates and glitches
+############################################################################
+
+#Fix glitch before July missing dates
+#=======================================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-07-04 16:30:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-07-13 03:30:01")
+
+UQL1_20_fix$WC_100cm[UQL1_20_fix$WC_100cm > 0] <- NA
+UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm > 0] <- NA
+UQL1_20_fix$WC_15cm[UQL1_20_fix$WC_15cm > 0] <- NA
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-07-04 16:30:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-07-13 03:30:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
+
+#Fix glitch before July missing dates
+#=======================================================================
+UQL1_20_fix <- filter(UQL1_20, Date_time > "2020-10-21 00:30:01")
+UQL1_20_fix <- filter(UQL1_20_fix, Date_time < "2020-10-23 03:30:01")
+
+UQL1_20_fix$WC_100cm[UQL1_20_fix$WC_100cm > 0] <- NA
+UQL1_20_fix$WC_30cm[UQL1_20_fix$WC_30cm > 0] <- NA
+UQL1_20_fix$WC_15cm[UQL1_20_fix$WC_15cm > 0] <- NA
+
+#Recombine and then subset again 
+UQL1_20_early <- filter(UQL1_20, Date_time < "2020-10-21 00:30:01")
+UQL1_20_late <- filter(UQL1_20, Date_time > "2020-10-23 03:30:01")
+UQL1_20 <- bind_rows(UQL1_20_early,UQL1_20_late, UQL1_20_fix )
 
 #Replace missing dates with NAs
 #==================================================================
@@ -1666,15 +2243,23 @@ UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
 UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-02-15 00:00:01")
 UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-02-16 20:00:01")
 
-Soil <- ggplot(data = subset(UQL1_21_fix, !is.na(Date_time)), aes(x = Date_time)) + 
-  geom_line(aes(y = WC_30cm, color = "blue"))
-Soil 
-
 UQL1_21_fix$WC_30cm[UQL1_21_fix$WC_30cm > 0.3] <- NA
 
 #Recombine and then subset again 
 UQL1_21_early <- filter(UQL1_21, Date_time < "2021-02-15 00:00:01")
 UQL1_21_late <- filter(UQL1_21, Date_time > "2021-02-16 20:00:01")
+UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
+
+#Removed sustained dip 
+#========================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-03-15 00:00:01")
+UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-04-17 20:00:01")
+
+UQL1_21_fix$WC_30cm[UQL1_21_fix$WC_30cm > 0] <- NA
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-03-15 00:00:01")
+UQL1_21_late <- filter(UQL1_21, Date_time > "2021-04-17 20:00:01")
 UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
 
 #Subset and fix drips 
@@ -1704,6 +2289,283 @@ UQL1_21_early <- filter(UQL1_21, Date_time < "2021-03-10 12:00:01")
 UQL1_21_late <- filter(UQL1_21, Date_time > "2021-04-20 1:00:01")
 UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
 
+#Calibrate 
+#===================================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-06-11 13:00:01")
+UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-06-15 00:00:01")
+
+UQL1_21_fix$WC_30cm[UQL1_21_fix$WC_30cm > 0] <- NA
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-06-11 13:00:01")
+UQL1_21_late <- filter(UQL1_21, Date_time > "2021-06-15 00:00:01")
+UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
+
+#Calibrate 
+#===================================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-07-12 04:30:01")
+UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-08-06 06:00:01")
+
+UQL1_21_fix$WC_30cm <- UQL1_21_fix$WC_30cm - 0.0032
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-07-12 04:30:01")
+UQL1_21_late <- filter(UQL1_21, Date_time > "2021-08-06 06:00:01")
+UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
+
+#Subset and fix drips 
+#========================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-02-23 13:50:01")
+
+UQL1_21_fix$WC_30cm <- UQL1_21_fix$WC_30cm + 0.0326
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-02-23 13:50:01")
+UQL1_21 <- bind_rows(UQL1_21_early, UQL1_21_fix )
+
+#Subset and fix drips 
+#========================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-02-18 12:00:01")
+UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-02-21 14:00:01")
+
+UQL1_21_fix <- UQL1_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL1_21_fix <- transform(UQL1_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL1_21_fix <- transform(UQL1_21_fix, WC_30cm=ifelse(incr < -0.001 | incr > 0.001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/24, 24), sides=2)), 
+                                                     WC_30cm))
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-02-18 12:00:01")
+UQL1_21_late <- filter(UQL1_21, Date_time > "2021-02-21 14:00:01")
+UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
+
+#Subset and remove drips
+#=========================================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-02-24 12:00:01")
+UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-02-26 14:00:01")
+
+UQL1_21_fix$WC_30cm[UQL1_21_fix$WC_30cm > 0.378] <- NA
+missing <- which(is.na(UQL1_21_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_21_fix$WC_30cm[1] <- head(UQL1_21_fix$WC_30cm[!is.na(UQL1_21_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_21_fix) %in% missing){
+  UQL1_21_fix$WC_30cm[nrow(data)] <- tail(UQL1_21_fix$WC_30cm[!is.na(UQL1_21_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_21_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_21_fix$WC_30cm[idx] <- (UQL1_21_fix$WC_30cm[r$starts[i]] + UQL1_21_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-02-24 12:00:01")
+UQL1_21_late <- filter(UQL1_21, Date_time > "2021-02-26 14:00:01")
+UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
+
+#Subset and remove drips
+#=========================================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-02-26 12:00:01")
+UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-03-04 14:00:01")
+
+UQL1_21_fix$WC_30cm[UQL1_21_fix$WC_30cm > 0.3725] <- NA
+missing <- which(is.na(UQL1_21_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_21_fix$WC_30cm[1] <- head(UQL1_21_fix$WC_30cm[!is.na(UQL1_21_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_21_fix) %in% missing){
+  UQL1_21_fix$WC_30cm[nrow(data)] <- tail(UQL1_21_fix$WC_30cm[!is.na(UQL1_21_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_21_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_21_fix$WC_30cm[idx] <- (UQL1_21_fix$WC_30cm[r$starts[i]] + UQL1_21_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-02-26 12:00:01")
+UQL1_21_late <- filter(UQL1_21, Date_time > "2021-03-04 14:00:01")
+UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
+
+#Subset and remove drips
+#=========================================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-02-28 12:00:01")
+UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-03-04 14:00:01")
+
+UQL1_21_fix$WC_30cm[UQL1_21_fix$WC_30cm > 0.3675] <- NA
+missing <- which(is.na(UQL1_21_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_21_fix$WC_30cm[1] <- head(UQL1_21_fix$WC_30cm[!is.na(UQL1_21_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_21_fix) %in% missing){
+  UQL1_21_fix$WC_30cm[nrow(data)] <- tail(UQL1_21_fix$WC_30cm[!is.na(UQL1_21_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_21_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_21_fix$WC_30cm[idx] <- (UQL1_21_fix$WC_30cm[r$starts[i]] + UQL1_21_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-02-28 12:00:01")
+UQL1_21_late <- filter(UQL1_21, Date_time > "2021-03-04 14:00:01")
+UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
+
+#Subset and remove drips
+#=========================================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-03-04 12:00:01")
+UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-03-06 14:00:01")
+
+UQL1_21_fix$WC_30cm[UQL1_21_fix$WC_30cm < 0.362] <- NA
+missing <- which(is.na(UQL1_21_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_21_fix$WC_30cm[1] <- head(UQL1_21_fix$WC_30cm[!is.na(UQL1_21_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_21_fix) %in% missing){
+  UQL1_21_fix$WC_30cm[nrow(data)] <- tail(UQL1_21_fix$WC_30cm[!is.na(UQL1_21_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_21_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_21_fix$WC_30cm[idx] <- (UQL1_21_fix$WC_30cm[r$starts[i]] + UQL1_21_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-03-04 12:00:01")
+UQL1_21_late <- filter(UQL1_21, Date_time > "2021-03-06 14:00:01")
+UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
+
+#Subset and remove drips
+#=========================================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-03-06 08:00:01")
+UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-03-11 04:00:01")
+
+UQL1_21_fix <- UQL1_21_fix %>% 
+  arrange(Date_time) %>% 
+  mutate(
+    diff=WC_30cm-lag(WC_30cm),
+    increase=scales::percent(diff / lag(WC_30cm))
+  ) %>%
+  filter(row_number()!=1)
+#Make increase column not a percent 
+UQL1_21_fix <- transform(UQL1_21_fix, incr=as.numeric(gsub('\\%', '', increase))/100)
+
+UQL1_21_fix <- transform(UQL1_21_fix, WC_30cm=ifelse(incr < -0.001 | incr > 0.001, 
+                                                     as.numeric(stats::filter(WC_30cm, rep(1/30, 30), sides=2)), 
+                                                     WC_30cm))
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-03-06 08:00:01")
+UQL1_21_late <- filter(UQL1_21, Date_time > "2021-03-11 04:00:01")
+UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
+
+#Subset and remove drips
+#=========================================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-03-09 10:40:01")
+UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-03-09 20:00:01")
+
+UQL1_21_fix$WC_30cm[UQL1_21_fix$WC_30cm < 0.435 | UQL1_21_fix$WC_30cm > 0.445] <- NA
+missing <- which(is.na(UQL1_21_fix$WC_30cm))
+
+if(1 %in% missing){
+  UQL1_21_fix$WC_30cm[1] <- head(UQL1_21_fix$WC_30cm[!is.na(UQL1_21_fix$WC_30cm)],1)
+}
+if(nrow(UQL1_21_fix) %in% missing){
+  UQL1_21_fix$WC_30cm[nrow(data)] <- tail(UQL1_21_fix$WC_30cm[!is.na(UQL1_21_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(UQL1_21_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  UQL1_21_fix$WC_30cm[idx] <- (UQL1_21_fix$WC_30cm[r$starts[i]] + UQL1_21_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-03-09 10:40:01")
+UQL1_21_late <- filter(UQL1_21, Date_time > "2021-03-09 20:00:01")
+UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
+
+#Subset and remove drips
+#=========================================================================
+UQL1_21_fix <- filter(UQL1_21, Date_time > "2021-03-09 10:40:01")
+UQL1_21_fix <- filter(UQL1_21_fix, Date_time < "2021-03-14 12:00:01")
+
+Soil <- ggplot(data = subset(UQL1_21_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_30cm, color = "blue")) 
+Soil 
+
+UQL1_21_fix$WC_30cm[UQL1_21_fix$WC_30cm < 0.42] <- NA
+
+#Recombine and then subset again 
+UQL1_21_early <- filter(UQL1_21, Date_time < "2021-03-09 10:40:01")
+UQL1_21_late <- filter(UQL1_21, Date_time > "2021-03-14 12:00:01")
+UQL1_21 <- bind_rows(UQL1_21_early,UQL1_21_late, UQL1_21_fix )
 
 #100 cm 
 ################################################################
@@ -1739,7 +2601,6 @@ for(i in r$i){
 UQL1_21$WC_100cm[UQL1_21$WC_100cm == 0.7184] <- NA
 UQL1_21$WC_100cm[UQL1_21$WC_100cm > 0.35] <- NA
 
-
 #Plot again 
 Soil <- ggplot(data = subset(UQL1_21, !is.na(Date_time)), aes(x = Date_time)) + 
   geom_line(aes(y = WC_100cm, color = "navyblue")) + 
@@ -1766,8 +2627,6 @@ UQL1_clean <- merge(UQL1_clean, UQL1_17, by = c("Date_time", "WC_15cm", "WC_30cm
                     all.x = TRUE, all.y = TRUE)
 
 #Graph
-
-
 Soil <- ggplot(data = subset(UQL1_clean, !is.na(Date_time)), aes(x = Date_time)) + 
   geom_line(aes(y = WC_100cm, color = "100 cm"), color = "navy blue", linetype = "dotted", size = 6) + 
   theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
@@ -1791,6 +2650,6 @@ Soil + theme(axis.line = element_line(size = 0.4,
 dev.off()
 
 #Write the csv
-write.csv(UQL1_clean,"~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/UQL/UQL1_clean.csv" ) #this writes a csv file and sends it to the working folder
+write.csv(UQL1_clean,"~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/UQL/UQL1_clean.csv") #this writes a csv file and sends it to the working folder
 
 

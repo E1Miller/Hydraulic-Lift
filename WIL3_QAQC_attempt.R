@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/25/2022
-#Date last edited: 02/08/2023
+#Date last edited: 02/15/2023
 #Description: QA/QC WIL 3  
 
 #Attach dependencies 
@@ -458,6 +458,16 @@ for(i in r$i){
   WIL3_18$WC_30cm[idx] <- (WIL3_18$WC_30cm[r$starts[i]] + WIL3_18$WC_30cm[r$ends[i]])/2
 }
 
+#Calibrate
+#======================================================================
+WIL3_18_fix <- filter(WIL3_18, Date_time > "2018-08-22 09:40:01")
+
+WIL3_18_fix$WC_30cm <- WIL3_18_fix$WC_30cm + 0.0032
+
+#Recombine 
+WIL3_18_early <- filter(WIL3_18, Date_time < "2018-08-22 09:40:01")
+WIL3_18 <- bind_rows(WIL3_18_early, WIL3_18_fix)
+
 #100 cm 
 ################################################################
 WIL3_18$WC_100cm[WIL3_18$WC_100cm < 0] <- NA
@@ -517,6 +527,20 @@ WIL3_18_early <- filter(WIL3_18, Date_time < "2018-04-21 10:00:01")
 WIL3_18_late <- filter(WIL3_18, Date_time > "2018-04-23 12:00:01")
 WIL3_18 <- bind_rows(WIL3_18_early, WIL3_18_fix, WIL3_18_late)
 
+#Fix glitch before missing dates at end of year 
+#============================================================================
+WIL3_18_fix <- filter(WIL3_18, Date_time > "2018-12-24 03:00:01")
+WIL3_18_fix <- filter(WIL3_18_fix, Date_time < "2018-12-30 12:00:01")
+
+WIL3_18_fix$WC_100cm[WIL3_18_fix$WC_100cm > 0] <- NA
+WIL3_18_fix$WC_30cm[WIL3_18_fix$WC_30cm > 0] <- NA
+WIL3_18_fix$WC_15cm[WIL3_18_fix$WC_15cm > 0] <- NA
+
+#Recombine 
+WIL3_18_early <- filter(WIL3_18, Date_time < "2018-12-24 03:00:01")
+WIL3_18_late <- filter(WIL3_18, Date_time > "2018-12-30 12:00:01")
+WIL3_18 <- bind_rows(WIL3_18_early, WIL3_18_fix, WIL3_18_late)
+
 #Replace missing dates with NAs from 04/22 to 05/25
 #========================================================================
 insertDF <- as.data.frame(matrix(data = NA, nrow = 32, ncol = 5))
@@ -567,7 +591,6 @@ get_runs <- function(x){
 }
 
 r <- get_runs(is.na(WIL3_19$WC_15cm))
-
 
 for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
@@ -833,6 +856,26 @@ WIL3_19_fix$WC_15cm[WIL3_19_fix$WC_15cm > 0.258] <- NA
 #Recombine 
 WIL3_19_early <- filter(WIL3_19, Date_time < "2019-10-18 00:00:01")
 WIL3_19_late <- filter(WIL3_19, Date_time > "2019-10-21 10:10:01")
+WIL3_19 <- bind_rows(WIL3_19_early, WIL3_19_fix, WIL3_19_late)
+
+#Remove glitch before end of year 
+#==========================================================================================
+WIL3_19_fix <- filter(WIL3_19, Date_time > "2019-11-03 20:30:01")
+WIL3_19_fix <- filter(WIL3_19_fix, Date_time < "2019-12-31 23:50:01")
+
+Soil <- ggplot(data = subset(WIL3_19_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_100cm, color = "navyblue")) + 
+  geom_line(aes(y = WC_30cm, color = "blue")) + 
+  geom_line(aes(y = WC_15cm, color = "lightblue"))
+Soil 
+
+WIL3_19_fix$WC_100cm[WIL3_19_fix$WC_100cm > 0] <- NA
+WIL3_19_fix$WC_30cm[WIL3_19_fix$WC_30cm > 0] <- NA
+WIL3_19_fix$WC_15cm[WIL3_19_fix$WC_15cm > 0] <- NA
+
+#Recombine 
+WIL3_19_early <- filter(WIL3_19, Date_time < "2019-11-03 20:30:01")
+WIL3_19_late <- filter(WIL3_19, Date_time > "2019-12-31 23:50:01")
 WIL3_19 <- bind_rows(WIL3_19_early, WIL3_19_fix, WIL3_19_late)
 
 #Replace missing dates with NAs
@@ -1386,6 +1429,20 @@ WIL3_20_fix$WC_15cm[WIL3_20_fix$WC_15cm > 0.356] <- NA
 #Recombine 
 WIL3_20_early <- filter(WIL3_20, Date_time < "2020-03-22 10:00:01")
 WIL3_20_late <- filter(WIL3_20, Date_time > "2020-03-25 10:10:01")
+WIL3_20 <- bind_rows(WIL3_20_early, WIL3_20_fix, WIL3_20_late)
+
+#Remove glitch 
+#==================================================================
+WIL3_20_fix <- filter(WIL3_20, Date_time > "2020-05-01 10:00:01")
+WIL3_20_fix <- filter(WIL3_20_fix, Date_time < "2020-05-11 04:10:01")
+
+WIL3_20_fix$WC_100cm[WIL3_20_fix$WC_100cm > 0] <- NA
+WIL3_20_fix$WC_30cm[WIL3_20_fix$WC_30cm > 0] <- NA
+WIL3_20_fix$WC_15cm[WIL3_20_fix$WC_15cm > 0] <- NA
+
+#Recombine 
+WIL3_20_early <- filter(WIL3_20, Date_time < "2020-05-01 10:00:01")
+WIL3_20_late <- filter(WIL3_20, Date_time > "2020-05-11 04:10:01")
 WIL3_20 <- bind_rows(WIL3_20_early, WIL3_20_fix, WIL3_20_late)
 
 #Replace missing dates with NAs
