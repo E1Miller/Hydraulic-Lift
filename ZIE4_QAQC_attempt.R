@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/26/2022
-#Date last edited: 02/02/2023
+#Date last edited: 02/16/2023
 #Description: QA/QC ZIE 4
 
 #Attach dependencies 
@@ -132,6 +132,45 @@ for(i in r$i){
   ZIE4_18$WC_15cm[idx] <- (ZIE4_18$WC_15cm[r$starts[i]] + ZIE4_18$WC_15cm[r$ends[i]])/2
 }
 
+#Subset and remove drips
+#===========================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-06-08 11:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-06-09 11:00:01")
+
+Soil <- ggplot(data = subset(ZIE4_18fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_15cm, color = "navyblue")) 
+Soil 
+
+ZIE4_18fix$WC_15cm[ZIE4_18fix$WC_15cm < 0.189 | ZIE4_18fix$WC_15cm > 0.195] <- NA
+missing <- which(is.na(ZIE4_18fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_18fix$WC_15cm[1] <- head(ZIE4_18fix$WC_15cm[!is.na(ZIE4_18fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_18fix) %in% missing){
+  ZIE4_18fix$WC_15cm[nrow(data)] <- tail(ZIE4_18fix$WC_15cm[!is.na(ZIE4_18fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_18fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_18fix$WC_15cm[idx] <- (ZIE4_18fix$WC_15cm[r$starts[i]] + ZIE4_18fix$WC_15cm[r$ends[i]])/2
+}
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-06-08 11:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-06-09 11:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
 #30 cm 
 ################################################################
 ZIE4_18$WC_30cm[ZIE4_18$WC_30cm < 0] <- NA
@@ -163,7 +202,7 @@ for(i in r$i){
 
 #100 cm 
 ################################################################\
-ZIE4_18$WC_100cm[ZIE4_18$WC_100cm < 0] <- NA
+ZIE4_18$WC_100cm[ZIE4_18$WC_100cm < 0 | ZIE4_18$WC_100cm > 0.48] <- NA
 missing <- which(is.na(ZIE4_18$WC_100cm))
 
 if(1 %in% missing){
@@ -222,7 +261,6 @@ for(i in r$i){
 #Recombine
 ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-01-31 1:00:01")
 ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-02-05 1:00:01")
-
 ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
 
 #Fix upwards drips 
@@ -413,10 +451,6 @@ ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
 #============================================================================
 ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-05-21 00:00:01")
 ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-05-31 1:00:01")
-
-Soil <- ggplot(data = subset(ZIE4_18fix, !is.na(Date_time)), aes(x = Date_time)) + 
-  geom_line(aes(y = WC_100cm, color = "navyblue")) 
-Soil 
 
 ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm > 0.320] <- NA
 missing <- which(is.na(ZIE4_18fix$WC_100cm))
@@ -1002,7 +1036,320 @@ for(i in r$i){
 #Recombine
 ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-11-05 00:00:01")
 ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-11-22 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
 
+#Fix upwards drips 
+#============================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-01-20 00:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-02-01 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm > 0.4625] <- NA
+missing <- which(is.na(ZIE4_18fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE4_18fix$WC_100cm[1] <- head(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+if(nrow(ZIE4_18fix) %in% missing){
+  ZIE4_18fix$WC_100cm[nrow(data)] <- tail(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_18fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_18fix$WC_100cm[idx] <- (ZIE4_18fix$WC_100cm[r$starts[i]] + ZIE4_18fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-01-20 00:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-02-01 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
+#Fix upwards drips 
+#============================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-03-24 00:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-04-01 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm > 0.465] <- NA
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-03-24 00:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-04-01 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
+#Fix upwards drips 
+#============================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-04-01 00:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-04-22 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm < 0.455] <- NA
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-04-01 00:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-04-22 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
+#Fix upwards drips 
+#============================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-04-10 00:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-04-22 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm > 0.4675] <- NA
+missing <- which(is.na(ZIE4_18fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE4_18fix$WC_100cm[1] <- head(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+if(nrow(ZIE4_18fix) %in% missing){
+  ZIE4_18fix$WC_100cm[nrow(data)] <- tail(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_18fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_18fix$WC_100cm[idx] <- (ZIE4_18fix$WC_100cm[r$starts[i]] + ZIE4_18fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-04-10 00:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-04-22 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
+#Fix upwards drips 
+#============================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-11-23 10:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-12-20 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm < 0.452] <- NA
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-11-23 10:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-12-20 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
+#Fix upwards drips 
+#============================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-11-23 10:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-11-25 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm > 0.46] <- NA
+missing <- which(is.na(ZIE4_18fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE4_18fix$WC_100cm[1] <- head(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+if(nrow(ZIE4_18fix) %in% missing){
+  ZIE4_18fix$WC_100cm[nrow(data)] <- tail(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_18fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_18fix$WC_100cm[idx] <- (ZIE4_18fix$WC_100cm[r$starts[i]] + ZIE4_18fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-11-23 10:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-11-25 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
+#Fix upwards drips 
+#============================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-12-01 10:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-12-04 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm > 0.462] <- NA
+missing <- which(is.na(ZIE4_18fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE4_18fix$WC_100cm[1] <- head(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+if(nrow(ZIE4_18fix) %in% missing){
+  ZIE4_18fix$WC_100cm[nrow(data)] <- tail(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_18fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_18fix$WC_100cm[idx] <- (ZIE4_18fix$WC_100cm[r$starts[i]] + ZIE4_18fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-12-01 10:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-12-04 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
+#Fix upwards drips 
+#============================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-12-17 10:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-12-20 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm > 0.464] <- NA
+missing <- which(is.na(ZIE4_18fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE4_18fix$WC_100cm[1] <- head(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+if(nrow(ZIE4_18fix) %in% missing){
+  ZIE4_18fix$WC_100cm[nrow(data)] <- tail(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_18fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_18fix$WC_100cm[idx] <- (ZIE4_18fix$WC_100cm[r$starts[i]] + ZIE4_18fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-12-17 10:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-12-20 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
+#Fix upwards drips 
+#============================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-11-22 17:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-12-03 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm < 0.454] <- NA
+missing <- which(is.na(ZIE4_18fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE4_18fix$WC_100cm[1] <- head(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+if(nrow(ZIE4_18fix) %in% missing){
+  ZIE4_18fix$WC_100cm[nrow(data)] <- tail(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_18fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_18fix$WC_100cm[idx] <- (ZIE4_18fix$WC_100cm[r$starts[i]] + ZIE4_18fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-11-22 17:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-12-03 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
+#Fix upwards drips 
+#============================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-11-30 17:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-12-03 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm > 0.463] <- NA
+missing <- which(is.na(ZIE4_18fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE4_18fix$WC_100cm[1] <- head(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+if(nrow(ZIE4_18fix) %in% missing){
+  ZIE4_18fix$WC_100cm[nrow(data)] <- tail(ZIE4_18fix$WC_100cm[!is.na(ZIE4_18fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_18fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_18fix$WC_100cm[idx] <- (ZIE4_18fix$WC_100cm[r$starts[i]] + ZIE4_18fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-11-30 17:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-12-03 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
+#Fix upwards drips 
+#============================================================================
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-01-01 00:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-02-03 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm < 0.44] <- NA
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-01-01 00:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-02-03 1:00:01")
+ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
+
+#Missing dates and remove glitches
+###########################################################################
+ZIE4_18fix <- filter(ZIE4_18, Date_time > "2018-06-29 00:00:01")
+ZIE4_18fix <- filter(ZIE4_18fix, Date_time < "2018-07-03 1:00:01")
+
+ZIE4_18fix$WC_100cm[ZIE4_18fix$WC_100cm > 0] <- NA
+ZIE4_18fix$WC_30cm[ZIE4_18fix$WC_30cm > 0] <- NA
+ZIE4_18fix$WC_15cm[ZIE4_18fix$WC_15cm > 0] <- NA
+
+#Recombine
+ZIE4_18early <- filter(ZIE4_18, Date_time < "2018-06-29 00:00:01")
+ZIE4_18late <- filter(ZIE4_18, Date_time > "2018-07-03 1:00:01")
 ZIE4_18 <- bind_rows(ZIE4_18late, ZIE4_18early, ZIE4_18fix)
 
 #Replace missing dates with NAs - 06/30 t0 07/19
@@ -1465,8 +1812,333 @@ for(i in r$i){
 #Recombine
 ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-04-15 1:00:01")
 ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-04-17 1:00:01")
-
 ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in March
+#=============================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-03-23 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-04-01 1:00:01")
+
+ZIE4_19fix$WC_15cm[ZIE4_19fix$WC_15cm < 0.292] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_15cm[1] <- head(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_15cm[nrow(data)] <- tail(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_15cm[idx] <- (ZIE4_19fix$WC_15cm[r$starts[i]] + ZIE4_19fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-03-23 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-04-01 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in March
+#=============================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-04-17 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-04-20 21:00:01")
+
+ZIE4_19fix$WC_15cm[ZIE4_19fix$WC_15cm < 0.29] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_15cm[1] <- head(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_15cm[nrow(data)] <- tail(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_15cm[idx] <- (ZIE4_19fix$WC_15cm[r$starts[i]] + ZIE4_19fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-04-17 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-04-20 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in March
+#=============================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-04-10 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-04-21 21:00:01")
+
+ZIE4_19fix$WC_15cm[ZIE4_19fix$WC_15cm < 0.29] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_15cm[1] <- head(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_15cm[nrow(data)] <- tail(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_15cm[idx] <- (ZIE4_19fix$WC_15cm[r$starts[i]] + ZIE4_19fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-04-10 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-04-21 21:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in March
+#=============================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-05-14 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-05-16 01:00:01")
+
+ZIE4_19fix$WC_15cm[ZIE4_19fix$WC_15cm < 0.246] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_15cm[1] <- head(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_15cm[nrow(data)] <- tail(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_15cm[idx] <- (ZIE4_19fix$WC_15cm[r$starts[i]] + ZIE4_19fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-05-14 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-05-16 01:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in March
+#=============================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-05-16 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-05-28 01:00:01")
+
+ZIE4_19fix$WC_15cm[ZIE4_19fix$WC_15cm < 0.285] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_15cm[1] <- head(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_15cm[nrow(data)] <- tail(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_15cm[idx] <- (ZIE4_19fix$WC_15cm[r$starts[i]] + ZIE4_19fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-05-16 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-05-28 01:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in March
+#=============================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-05-22 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-05-22 21:00:01")
+
+ZIE4_19fix$WC_15cm[ZIE4_19fix$WC_15cm < 0.293] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_15cm[1] <- head(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_15cm[nrow(data)] <- tail(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_15cm[idx] <- (ZIE4_19fix$WC_15cm[r$starts[i]] + ZIE4_19fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-05-22 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-05-22 21:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in March
+#=============================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-05-23 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-05-31 21:00:01")
+
+ZIE4_19fix$WC_15cm[ZIE4_19fix$WC_15cm < 0.28] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_15cm[1] <- head(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_15cm[nrow(data)] <- tail(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_15cm[idx] <- (ZIE4_19fix$WC_15cm[r$starts[i]] + ZIE4_19fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-05-23 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-05-31 21:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in March
+#=============================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-08-01 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-08-25 21:00:01")
+
+ZIE4_19fix$WC_15cm[ZIE4_19fix$WC_15cm < 0.1095] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_15cm[1] <- head(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_15cm[nrow(data)] <- tail(ZIE4_19fix$WC_15cm[!is.na(ZIE4_19fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_15cm[idx] <- (ZIE4_19fix$WC_15cm[r$starts[i]] + ZIE4_19fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-08-01 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-08-25 21:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in March
+#=============================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-09-29 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-09-30 10:00:01")
+
+ZIE4_19fix$WC_15cm[ZIE4_19fix$WC_15cm < 0.136] <- NA
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-09-29 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-09-30 10:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in March
+#=============================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-10-21 17:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-11-11 10:00:01")
+
+ZIE4_19fix$WC_15cm[ZIE4_19fix$WC_15cm < 0.1] <- NA
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-10-21 17:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-11-11 10:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+
+#Subset and remove drips in March
+#=============================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-11-12 00:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-11-21 10:00:01")
+
+ZIE4_19fix$WC_15cm[ZIE4_19fix$WC_15cm < 0.099] <- NA
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-11-12 00:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-11-21 10:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
 
 #30 cm 
 ################################################################
@@ -1584,10 +2256,6 @@ ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
 ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-10-09 1:00:01")
 ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-10-21 1:00:01")
 
-Soil <- ggplot(data = subset(ZIE4_19fix, !is.na(Date_time)), aes(x = Date_time)) +
-  geom_line(aes(y = WC_30cm, color = "lightblue"))
-Soil
-
 ZIE4_19fix$WC_30cm[ZIE4_19fix$WC_30cm < 0.175] <- NA
 missing <- which(is.na(ZIE4_19fix$WC_30cm))
 
@@ -1617,12 +2285,239 @@ for(i in r$i){
 #Recombine
 ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-10-09 1:00:01")
 ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-10-21 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
 
+#Subset and remove drips in August/September
+#================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-08-12 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-08-23 1:00:01")
+
+ZIE4_19fix$WC_30cm[ZIE4_19fix$WC_30cm < 0.192] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_30cm[1] <- head(ZIE4_19fix$WC_30cm[!is.na(ZIE4_19fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_30cm[nrow(data)] <- tail(ZIE4_19fix$WC_30cm[!is.na(ZIE4_19fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_30cm[idx] <- (ZIE4_19fix$WC_30cm[r$starts[i]] + ZIE4_19fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-08-12 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-08-23 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in August/September
+#================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-09-13 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-09-20 1:00:01")
+
+ZIE4_19fix$WC_30cm[ZIE4_19fix$WC_30cm < 0.175] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_30cm[1] <- head(ZIE4_19fix$WC_30cm[!is.na(ZIE4_19fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_30cm[nrow(data)] <- tail(ZIE4_19fix$WC_30cm[!is.na(ZIE4_19fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_30cm[idx] <- (ZIE4_19fix$WC_30cm[r$starts[i]] + ZIE4_19fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-09-13 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-09-20 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in August/September
+#================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-09-25 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-09-28 1:00:01")
+
+ZIE4_19fix$WC_30cm[ZIE4_19fix$WC_30cm < 0.1952] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_30cm[1] <- head(ZIE4_19fix$WC_30cm[!is.na(ZIE4_19fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_30cm[nrow(data)] <- tail(ZIE4_19fix$WC_30cm[!is.na(ZIE4_19fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_30cm[idx] <- (ZIE4_19fix$WC_30cm[r$starts[i]] + ZIE4_19fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-09-25 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-09-28 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in August/September
+#================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-09-28 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-10-01 1:00:01")
+
+ZIE4_19fix$WC_30cm[ZIE4_19fix$WC_30cm < 0.193] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_30cm[1] <- head(ZIE4_19fix$WC_30cm[!is.na(ZIE4_19fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_30cm[nrow(data)] <- tail(ZIE4_19fix$WC_30cm[!is.na(ZIE4_19fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_30cm[idx] <- (ZIE4_19fix$WC_30cm[r$starts[i]] + ZIE4_19fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-09-28 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-10-01 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in August/September
+#================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-10-15 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-10-22 1:00:01")
+
+ZIE4_19fix$WC_30cm[ZIE4_19fix$WC_30cm < 0.178] <- NA
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-10-15 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-10-22 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in August/September
+#================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-10-17 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-10-22 1:00:01")
+
+ZIE4_19fix$WC_30cm[ZIE4_19fix$WC_30cm < 0.1802] <- NA
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-10-17 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-10-22 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in August/September
+#================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-10-20 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-10-22 1:00:01")
+
+ZIE4_19fix$WC_30cm[ZIE4_19fix$WC_30cm < 0.1812] <- NA
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-10-20 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-10-22 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in August/September
+#================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-11-11 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-12-01 1:00:01")
+
+ZIE4_19fix$WC_30cm[ZIE4_19fix$WC_30cm < 0.171] <- NA
+missing <- which(is.na(ZIE4_19fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_19fix$WC_30cm[1] <- head(ZIE4_19fix$WC_30cm[!is.na(ZIE4_19fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_19fix) %in% missing){
+  ZIE4_19fix$WC_30cm[nrow(data)] <- tail(ZIE4_19fix$WC_30cm[!is.na(ZIE4_19fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_19fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_19fix$WC_30cm[idx] <- (ZIE4_19fix$WC_30cm[r$starts[i]] + ZIE4_19fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-11-11 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-12-01 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
+
+#Subset and remove drips in August/September
+#================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-03-20 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-05-13 1:00:01")
+
+ZIE4_19fix$WC_30cm[ZIE4_19fix$WC_30cm > 0] <- NA
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-03-20 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-05-13 1:00:01")
 ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
 
 #100 cm 
 ################################################################
-ZIE4_19$WC_100cm[ZIE4_19$WC_100cm < 0] <- NA
+ZIE4_19$WC_100cm[ZIE4_19$WC_100cm < 0 | ZIE4_19$WC_100cm > 0.48] <- NA
 missing <- which(is.na(ZIE4_19$WC_100cm))
 
 if(1 %in% missing){
@@ -1683,7 +2578,18 @@ for(i in r$i){
 #Recombine
 ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-11-29 1:00:01")
 ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-12-31 1:00:01")
+ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
 
+# #Subset and remove drips in August/September
+# #================================================================
+ZIE4_19fix <- filter(ZIE4_19, Date_time > "2019-04-29 1:00:01")
+ZIE4_19fix<- filter(ZIE4_19fix, Date_time < "2019-05-31 1:00:01")
+
+ZIE4_19fix$WC_100cm[ZIE4_19fix$WC_100cm < 0.36] <- NA
+
+#Recombine
+ZIE4_19early <- filter(ZIE4_19, Date_time < "2019-04-29 1:00:01")
+ZIE4_19late <- filter(ZIE4_19, Date_time > "2019-05-31 1:00:01")
 ZIE4_19 <- bind_rows(ZIE4_19late, ZIE4_19early, ZIE4_19fix)
 
 
@@ -1912,7 +2818,703 @@ for(i in r$i){
 #Recombine
 ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-20 1:00:01")
 ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-05-01 1:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
 
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-03-23 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-04-01 1:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.276] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-03-23 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-04-01 1:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-03-26 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-03-28 1:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.2845] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-03-26 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-03-28 1:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-03-28 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-03-31 1:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.2832] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-03-28 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-03-31 1:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-02-15 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-02-18 1:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.274] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-02-15 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-02-18 1:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-02-25 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-03-02 1:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.2576] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-02-25 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-03-02 1:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-03-02 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-03-09 1:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.246] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-03-02 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-03-09 1:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-03-09 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-03-19 1:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.239] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-03-09 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-03-19 1:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-04-13 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-04-20 1:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm > 0.3] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-13 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-04-20 1:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-04-13 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-04-15 21:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.2775] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-13 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-04-15 21:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-04-15 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-04-19 21:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.2725] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-15 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-04-19 21:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-04-19 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-04-21 21:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.2695] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-19 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-04-21 21:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-04-21 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-04-23 11:00:01")
+
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.2675] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-21 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-04-23 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-04-23 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-04-26 11:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.261] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-23 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-04-26 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-04-29 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-05-05 11:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.252] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-29 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-05-05 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-05-08 1:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-05-25 11:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.242] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-05-08 1:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-05-25 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-05-16 02:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-05-19 08:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.29] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-05-16 02:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-05-19 08:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-06-01 02:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-06-29 08:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm > 0.26] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-06-01 02:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-06-29 08:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-06-01 02:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-06-08 00:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.235] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-06-01 02:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-06-08 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-06-01 02:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-06-03 00:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.254] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-06-01 02:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-06-03 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-06-27 02:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-06-30 00:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm > 0.1675] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-06-27 02:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-06-30 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-09-15 02:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-10-30 00:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm > 0.2053] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-09-15 02:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-10-30 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-09-22 02:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-09-30 00:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm > 0.204] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-09-22 02:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-09-30 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-10-01 12:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-10-30 00:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm > 0.199] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-10-01 12:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-10-30 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-11-05 14:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-11-11 00:00:01")
+
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm < 0.193] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_15cm[1] <- head(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_15cm[nrow(data)] <- tail(ZIE4_20fix$WC_15cm[!is.na(ZIE4_20fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_15cm[idx] <- (ZIE4_20fix$WC_15cm[r$starts[i]] + ZIE4_20fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-11-05 14:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-11-11 00:00:01")
 ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
 
 #30 cm 
@@ -3218,7 +4820,562 @@ for(i in r$i){
 #Recombine
 ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-06-08 00:00:01")
 ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-06-10 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
 
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-03-04 00:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-03-10 00:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm < 0.2855] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-03-04 00:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-03-10 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-03-04 00:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-03-07 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm < 0.2866] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-03-04 00:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-03-07 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-03-10 00:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-03-11 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm < 0.283] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-03-10 00:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-03-11 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-04-19 00:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-04-21 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm < 0.2995] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-19 00:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-04-21 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-04-21 00:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-04-23 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm < 0.296] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-21 00:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-04-23 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-04-29 00:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-05-01 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm < 0.28875] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-29 00:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-05-01 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-05-02 10:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-05-04 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm < 0.290] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-05-02 10:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-05-04 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-05-10 10:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-05-13 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm < 0.283] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-05-10 10:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-05-13 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-05-13 10:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-05-23 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm < 0.29] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-05-13 10:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-05-23 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-06-01 10:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-06-05 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm < 0.2825] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-06-01 10:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-06-05 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-06-27 10:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-07-05 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm > 0.2445] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-06-27 10:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-07-05 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-09-01 10:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-10-05 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm > 0.090] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-09-01 10:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-10-05 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-09-15 10:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-10-05 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm > 0.0876] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-09-15 10:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-10-05 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-09-23 10:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-10-05 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm > 0.085] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-09-23 10:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-10-05 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-10-05 10:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-10-12 11:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm > 0.084 | ZIE4_20fix$WC_30cm < 0.078] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-10-05 10:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-10-12 11:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Subset and then remove drips
+#==========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-11-12 10:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-11-15 11:00:01")
+
+Soil <- ggplot(data = subset(ZIE4_20fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_30cm, color = "lightblue")) 
+Soil 
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm < 0.15] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_30cm[1] <- head(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_30cm[nrow(data)] <- tail(ZIE4_20fix$WC_30cm[!is.na(ZIE4_20fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_30cm[idx] <- (ZIE4_20fix$WC_30cm[r$starts[i]] + ZIE4_20fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-11-12 10:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-11-15 11:00:01")
 ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
 
 #100 cm 
@@ -3249,6 +5406,105 @@ for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   ZIE4_20$WC_100cm[idx] <- (ZIE4_20$WC_100cm[r$starts[i]] + ZIE4_20$WC_100cm[r$ends[i]])/2
 }
+
+#Remove glitch in November/December
+#===========================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-11-14 00:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-11-20 00:00:01")
+
+Soil <- ggplot(data = subset(ZIE4_20fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_100cm, color = "navyblue"))
+Soil 
+
+ZIE4_20fix$WC_100cm[ZIE4_20fix$WC_100cm < 0.4355] <- NA
+missing <- which(is.na(ZIE4_20fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE4_20fix$WC_100cm[1] <- head(ZIE4_20fix$WC_100cm[!is.na(ZIE4_20fix$WC_100cm)],1)
+}
+if(nrow(ZIE4_20fix) %in% missing){
+  ZIE4_20fix$WC_100cm[nrow(data)] <- tail(ZIE4_20fix$WC_100cm[!is.na(ZIE4_20fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_20fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_20fix$WC_100cm[idx] <- (ZIE4_20fix$WC_100cm[r$starts[i]] + ZIE4_20fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-11-14 00:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-04-20 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+
+#Remove glitches before missing dates and add missing dates
+###########################################################################
+
+#Glitch before April missing date
+#===================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-04-04 00:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-04-15 00:00:01")
+
+ZIE4_20fix$WC_100cm[ZIE4_20fix$WC_100cm > 0] <- NA
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm > 0] <- NA
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm > 0] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-04-04 00:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-04-15 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Glitch before April missing date
+#===================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-05-27 15:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-05-30 00:00:01")
+
+ZIE4_20fix$WC_100cm[ZIE4_20fix$WC_100cm > 0] <- NA
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm > 0] <- NA
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm > 0] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-05-27 15:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-05-30 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Glitch before April missing date
+#===================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-06-28 00:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-07-15 00:00:01")
+
+ZIE4_20fix$WC_100cm[ZIE4_20fix$WC_100cm > 0] <- NA
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm > 0] <- NA
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm > 0] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-06-28 00:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-07-15 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
+
+#Glitch before April missing date
+#===================================================================
+ZIE4_20fix <- filter(ZIE4_20, Date_time > "2020-07-15 00:00:01")
+ZIE4_20fix <- filter(ZIE4_20fix, Date_time < "2020-08-15 00:00:01")
+
+ZIE4_20fix$WC_30cm[ZIE4_20fix$WC_30cm > 0] <- NA
+ZIE4_20fix$WC_15cm[ZIE4_20fix$WC_15cm > 0] <- NA
+
+#Recombine
+ZIE4_20early <- filter(ZIE4_20, Date_time < "2020-07-15 00:00:01")
+ZIE4_20late <- filter(ZIE4_20, Date_time > "2020-08-15 00:00:01")
+ZIE4_20 <- bind_rows(ZIE4_20late, ZIE4_20early, ZIE4_20fix)
 
 #Replace missing dates with NAs 
 # Dates from 04/11 to 04/15 
@@ -3486,10 +5742,6 @@ ZIE4_21 <- bind_rows(ZIE4_21late, ZIE4_21early, ZIE4_21fix)
 ZIE4_21fix <- filter(ZIE4_21, Date_time > "2021-06-07 00:00:01")
 ZIE4_21fix <- filter(ZIE4_21fix, Date_time < "2021-06-16 00:00:01")
 
-Soil <- ggplot(data = subset(ZIE4_21fix, !is.na(Date_time)), aes(x = Date_time)) + 
-  geom_line(aes(y = WC_30cm, color = "blue")) 
-Soil 
-
 ZIE4_21fix$WC_30cm[ZIE4_21fix$WC_30cm < 0.175] <- NA
 missing <- which(is.na(ZIE4_21fix$WC_30cm))
 
@@ -3519,7 +5771,6 @@ for(i in r$i){
 #Recombine
 ZIE4_21early <- filter(ZIE4_21, Date_time < "2021-06-07 00:00:01")
 ZIE4_21late <- filter(ZIE4_21, Date_time > "2021-06-16 00:00:01")
-
 ZIE4_21 <- bind_rows(ZIE4_21late, ZIE4_21early, ZIE4_21fix)
 
 #100 cm 
@@ -3551,6 +5802,45 @@ for(i in r$i){
   ZIE4_21$WC_100cm[idx] <- (ZIE4_21$WC_100cm[r$starts[i]] + ZIE4_21$WC_100cm[r$ends[i]])/2
 }
 
+#Subset and remove dip 
+#===============================================================================
+ZIE4_21fix <- filter(ZIE4_21, Date_time > "2021-03-01 00:00:01")
+ZIE4_21fix <- filter(ZIE4_21fix, Date_time < "2021-03-26 00:00:01")
+
+Soil <- ggplot(data = subset(ZIE4_21fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_100cm, color = "blue")) 
+Soil 
+
+ZIE4_21fix$WC_100cm[ZIE4_21fix$WC_100cm < 0.44] <- NA
+missing <- which(is.na(ZIE4_21fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE4_21fix$WC_100cm[1] <- head(ZIE4_21fix$WC_100cm[!is.na(ZIE4_21fix$WC_100cm)],1)
+}
+if(nrow(ZIE4_21fix) %in% missing){
+  ZIE4_21fix$WC_100cm[nrow(data)] <- tail(ZIE4_21fix$WC_100cm[!is.na(ZIE4_21fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE4_21fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE4_21fix$WC_100cm[idx] <- (ZIE4_21fix$WC_100cm[r$starts[i]] + ZIE4_21fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE4_21early <- filter(ZIE4_21, Date_time < "2021-03-01 00:00:01")
+ZIE4_21late <- filter(ZIE4_21, Date_time > "2021-03-26 00:00:01")
+ZIE4_21 <- bind_rows(ZIE4_21late, ZIE4_21early, ZIE4_21fix)
 
 #Plot again 
 Soil <- ggplot(data = subset(ZIE4_21, !is.na(Date_time)), aes(x = Date_time)) + 

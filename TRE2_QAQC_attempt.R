@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 12/19/2022
-#Date last edited: 02/13/2023
+#Date last edited: 02/16/2023
 #Description: QA/QC TRE 2
 
 #Attach dependencies 
@@ -111,6 +111,157 @@ TRE2_18_fix$WC_15cm <- NA
 #Recombine
 TRE2_18_early <- filter(TRE2_18, Date_time < "2018-10-01 00:00:01")
 TRE2_18_late <- filter(TRE2_18, Date_time > "2018-11-20 01:00:01")
+TRE2_18 <- bind_rows(TRE2_18_early, TRE2_18_late, TRE2_18_fix)
+
+#30 cm 
+###############################################################################
+
+#Subset and remove drips
+#=================================================================================
+TRE2_18_fix <- filter(TRE2_18, Date_time > "2018-09-05 00:00:01")
+TRE2_18_fix <- filter(TRE2_18_fix, Date_time < "2018-09-20 01:00:01")
+
+TRE2_18_fix$WC_30cm[TRE2_18_fix$WC_30cm > 0.1950] <- NA
+missing <- which(is.na(TRE2_18_fix$WC_30cm))
+
+if(1 %in% missing){
+  TRE2_18_fix$WC_30cm[1] <- head(TRE2_18_fix$WC_30cm[!is.na(TRE2_18_fix$WC_30cm)],1)
+}
+if(nrow(TRE2_18_fix) %in% missing){
+  TRE2_18_fix$WC_30cm[nrow(data)] <- tail(TRE2_18_fix$WC_30cm[!is.na(TRE2_18_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE2_18_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE2_18_fix$WC_30cm[idx] <- (TRE2_18_fix$WC_30cm[r$starts[i]] + TRE2_18_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE2_18_early <- filter(TRE2_18, Date_time < "2018-09-05 00:00:01")
+TRE2_18_late <- filter(TRE2_18, Date_time > "2018-09-20 01:00:01")
+TRE2_18 <- bind_rows(TRE2_18_early, TRE2_18_late, TRE2_18_fix)
+
+#Subset and remove drips
+#=================================================================================
+TRE2_18_fix <- filter(TRE2_18, Date_time > "2018-09-20 00:00:01")
+TRE2_18_fix <- filter(TRE2_18_fix, Date_time < "2018-10-20 01:00:01")
+
+TRE2_18_fix$WC_30cm[TRE2_18_fix$WC_30cm < 0.1822] <- NA
+missing <- which(is.na(TRE2_18_fix$WC_30cm))
+
+if(1 %in% missing){
+  TRE2_18_fix$WC_30cm[1] <- head(TRE2_18_fix$WC_30cm[!is.na(TRE2_18_fix$WC_30cm)],1)
+}
+if(nrow(TRE2_18_fix) %in% missing){
+  TRE2_18_fix$WC_30cm[nrow(data)] <- tail(TRE2_18_fix$WC_30cm[!is.na(TRE2_18_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE2_18_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE2_18_fix$WC_30cm[idx] <- (TRE2_18_fix$WC_30cm[r$starts[i]] + TRE2_18_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE2_18_early <- filter(TRE2_18, Date_time < "2018-09-20 00:00:01")
+TRE2_18_late <- filter(TRE2_18, Date_time > "2018-10-20 01:00:01")
+TRE2_18 <- bind_rows(TRE2_18_early, TRE2_18_late, TRE2_18_fix)
+
+#Subset and remove drips
+#=================================================================================
+TRE2_18_fix <- filter(TRE2_18, Date_time > "2018-10-01 00:00:01")
+TRE2_18_fix <- filter(TRE2_18_fix, Date_time < "2018-10-20 01:00:01")
+
+TRE2_18_fix$WC_30cm[TRE2_18_fix$WC_30cm < 0.1842] <- NA
+missing <- which(is.na(TRE2_18_fix$WC_30cm))
+
+if(1 %in% missing){
+  TRE2_18_fix$WC_30cm[1] <- head(TRE2_18_fix$WC_30cm[!is.na(TRE2_18_fix$WC_30cm)],1)
+}
+if(nrow(TRE2_18_fix) %in% missing){
+  TRE2_18_fix$WC_30cm[nrow(data)] <- tail(TRE2_18_fix$WC_30cm[!is.na(TRE2_18_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE2_18_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE2_18_fix$WC_30cm[idx] <- (TRE2_18_fix$WC_30cm[r$starts[i]] + TRE2_18_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE2_18_early <- filter(TRE2_18, Date_time < "2018-10-01 00:00:01")
+TRE2_18_late <- filter(TRE2_18, Date_time > "2018-10-20 01:00:01")
+TRE2_18 <- bind_rows(TRE2_18_early, TRE2_18_late, TRE2_18_fix)
+
+#Subset and remove drips
+#=================================================================================
+TRE2_18_fix <- filter(TRE2_18, Date_time > "2018-10-03 05:00:01")
+TRE2_18_fix <- filter(TRE2_18_fix, Date_time < "2018-10-20 01:00:01")
+
+Soil <- ggplot(data = subset(TRE2_18_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_30cm, color = "blue"))
+Soil 
+
+TRE2_18_fix$WC_30cm[TRE2_18_fix$WC_30cm < 0.1865] <- NA
+missing <- which(is.na(TRE2_18_fix$WC_30cm))
+
+if(1 %in% missing){
+  TRE2_18_fix$WC_30cm[1] <- head(TRE2_18_fix$WC_30cm[!is.na(TRE2_18_fix$WC_30cm)],1)
+}
+if(nrow(TRE2_18_fix) %in% missing){
+  TRE2_18_fix$WC_30cm[nrow(data)] <- tail(TRE2_18_fix$WC_30cm[!is.na(TRE2_18_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE2_18_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE2_18_fix$WC_30cm[idx] <- (TRE2_18_fix$WC_30cm[r$starts[i]] + TRE2_18_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE2_18_early <- filter(TRE2_18, Date_time < "2018-10-03 05:00:01")
+TRE2_18_late <- filter(TRE2_18, Date_time > "2018-10-20 01:00:01")
 TRE2_18 <- bind_rows(TRE2_18_early, TRE2_18_late, TRE2_18_fix)
 
 #Plot again 
@@ -3543,6 +3694,6 @@ dev.off()
 
 
 #Write the csv
-write.csv(TRE2_clean,"~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/TRE_new/TRE2_new.csv" ) #this writes a csv file and sends it to the working folder
+write.csv(TRE2_clean,"~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/TRE_new/TRE2_clean.csv" ) #this writes a csv file and sends it to the working folder
 
 
