@@ -551,6 +551,16 @@ insertDF <- cbind(Date, insertDF)
 
 WIL3_18 <- insertRows(WIL3_18, c(16037:16069), new = insertDF)
 
+#Replace missing dates with NAs from 12/26 to 12/31
+#========================================================================
+insertDF <- as.data.frame(matrix(data = NA, nrow = 5, ncol = 5))
+colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
+Date_time <- seq(as.Date("2018-12-27"), as.Date("2018-12-31"),"days")
+Date <- as.data.frame(Date_time) 
+insertDF <- cbind(Date, insertDF)
+
+WIL3_18 <- insertRows(WIL3_18, c(46712:46715), new = insertDF)
+
 #Plot again 
 Soil <- ggplot(data = subset(WIL3_18, !is.na(Date_time)), aes(x = Date_time)) + 
   geom_line(aes(y = WC_100cm, color = "navyblue")) + 
@@ -922,6 +932,16 @@ WIL3_19 <- insertRows(WIL3_19, c(7558:7580), new = insertDF)
 
 #10/21 to 10/21
 #Also missing a period from 09:50:01 until 10:10:01 
+
+#11/05 to 12/31
+insertDF <- as.data.frame(matrix(data = NA, nrow = 56, ncol = 5))
+colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
+Date_time <- seq(as.Date("2019-11-06"), as.Date("2019-12-31"),"days")
+Date <- as.data.frame(Date_time) 
+insertDF <- cbind(Date, insertDF)
+
+WIL3_19 <- insertRows(WIL3_19, c(24018:24073), new = insertDF)
+
 
 #Plot again 
 Soil <- ggplot(data = subset(WIL3_19, !is.na(Date_time)), aes(x = Date_time)) + 
@@ -1474,6 +1494,15 @@ Date <- as.data.frame(Date_time)
 insertDF <- cbind(Date, insertDF)
 
 WIL3_20 <- insertRows(WIL3_20, c(4359:4379), new = insertDF)
+
+#01/01 to 02/15
+insertDF <- as.data.frame(matrix(data = NA, nrow = 45, ncol = 5))
+colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
+Date_time <- seq(as.Date("2020-01-01"), as.Date("2020-02-14"),"days")
+Date <- as.data.frame(Date_time) 
+insertDF <- cbind(Date, insertDF)
+
+WIL3_20 <- insertRows(WIL3_20, c(1:44), new = insertDF)
 
 #Plot again 
 Soil <- ggplot(data = subset(WIL3_20, !is.na(Date_time)), aes(x = Date_time)) + 
@@ -2348,22 +2377,4 @@ dev.off()
 
 #Write the csv
 write.csv(WIL3_clean,"~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/WIL/WIL3_clean.csv" ) #this writes a csv file and sends it to the working folder
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
