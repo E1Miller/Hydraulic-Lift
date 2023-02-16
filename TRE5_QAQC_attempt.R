@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/26/2022
-#Date last edited: 01/10/2023
+#Date last edited: 02/15/2023
 #Description: QA/QC TRE 5
 
 #Attach dependencies 
@@ -205,9 +205,6 @@ TRE5_18 <- bind_rows(TRE5_18_early, TRE5_18_fix, TRE5_18_late)
 TRE5_18_fix <- filter(TRE5_18, Date_time > "2018-11-20 1:00:01")
 TRE5_18_fix <- filter(TRE5_18_fix, Date_time < "2018-11-22 1:00:01")
 
-Soil <- ggplot(data = subset(TRE5_18_fix, !is.na(Date_time)), aes(x = Date_time)) + 
-  geom_line(aes(y = WC_15cm, color = "lightblue"))
-Soil 
 
 TRE5_18_fix$WC_15cm[TRE5_18_fix$WC_15cm < 0.26] <- NA
 missing <- which(is.na(TRE5_18_fix$WC_15cm))
@@ -1230,6 +1227,17 @@ TRE5_19_early <- filter(TRE5_19, Date_time < "2019-09-14 10:00:01")
 TRE5_19_late <- filter(TRE5_19, Date_time > "2019-09-17 00:00:01")
 TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
 
+#Remove the missing dates
+#=========================================================================
+#Replace missing dates with NAs - 09/27 to 12/31
+insertDF <- as.data.frame(matrix(data = NA, nrow = 95, ncol = 5))
+colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
+Date_time <- seq(as.Date("2019-09-28"), as.Date("2019-12-31"),"days")
+Date <- as.data.frame(Date_time) 
+insertDF <- cbind(Date, insertDF)
+
+TRE5_19 <- insertRows(TRE5_19, c(38789:38884), new = insertDF)
+
 #Plot again 
 Soil <- ggplot(data = subset(TRE5_19, !is.na(Date_time)), aes(x = Date_time)) + 
   geom_line(aes(y = WC_100cm, color = "navyblue")) + 
@@ -1414,6 +1422,17 @@ for(i in r$i){
 #100 cm 
 ################################################################
 TRE5_20$WC_100cm[TRE5_20$WC_100cm > 0.305] <- NA
+
+#Remove the missing dates
+#=========================================================================
+#Replace missing dates with NAs - 01/01 to 08/21
+insertDF <- as.data.frame(matrix(data = NA, nrow = 235, ncol = 5))
+colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
+Date_time <- seq(as.Date("2020-01-01"), as.Date("2020-08-22"),"days")
+Date <- as.data.frame(Date_time) 
+insertDF <- cbind(Date, insertDF)
+
+TRE5_20 <- insertRows(TRE5_20, c(1:234), new = insertDF)
 
 #Plot again 
 Soil <- ggplot(data = subset(TRE5_20, !is.na(Date_time)), aes(x = Date_time)) + 
