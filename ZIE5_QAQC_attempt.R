@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/26/2022
-#Date last edited: 02/03/2023
+#Date last edited: 02/15/2023
 #Description: QA/QC ZIE 5
 
 #Attach dependencies 
@@ -463,7 +463,6 @@ get_runs <- function(x){
 
 r <- get_runs(is.na(ZIE5_18_fix$WC_15cm))
 
-
 for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   ZIE5_18_fix$WC_15cm[idx] <- (ZIE5_18_fix$WC_15cm[r$starts[i]] + ZIE5_18_fix$WC_15cm[r$ends[i]])/2
@@ -472,7 +471,6 @@ for(i in r$i){
 #Recombine
 ZIE5_18_early <- filter(ZIE5_18, Date_time < "2018-03-27 10:00:01")
 ZIE5_18_late <- filter(ZIE5_18, Date_time > "2018-04-01 10:00:01")
-
 ZIE5_18 <- bind_rows(ZIE5_18_early, ZIE5_18_late, ZIE5_18_fix)
 
 #Subset to remove drips
@@ -501,7 +499,6 @@ get_runs <- function(x){
 
 r <- get_runs(is.na(ZIE5_18_fix$WC_15cm))
 
-
 for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   ZIE5_18_fix$WC_15cm[idx] <- (ZIE5_18_fix$WC_15cm[r$starts[i]] + ZIE5_18_fix$WC_15cm[r$ends[i]])/2
@@ -510,7 +507,6 @@ for(i in r$i){
 #Recombine
 ZIE5_18_early <- filter(ZIE5_18, Date_time < "2018-05-27 10:00:01")
 ZIE5_18_late <- filter(ZIE5_18, Date_time > "2018-06-11 10:00:01")
-
 ZIE5_18 <- bind_rows(ZIE5_18_early, ZIE5_18_late, ZIE5_18_fix)
 
 #Subset to remove drips
@@ -539,7 +535,6 @@ get_runs <- function(x){
 
 r <- get_runs(is.na(ZIE5_18_fix$WC_15cm))
 
-
 for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   ZIE5_18_fix$WC_15cm[idx] <- (ZIE5_18_fix$WC_15cm[r$starts[i]] + ZIE5_18_fix$WC_15cm[r$ends[i]])/2
@@ -548,7 +543,6 @@ for(i in r$i){
 #Recombine
 ZIE5_18_early <- filter(ZIE5_18, Date_time < "2018-05-27 10:00:01")
 ZIE5_18_late <- filter(ZIE5_18, Date_time > "2018-06-04 10:00:01")
-
 ZIE5_18 <- bind_rows(ZIE5_18_early, ZIE5_18_late, ZIE5_18_fix)
 
 #Subset to remove drips
@@ -577,7 +571,6 @@ get_runs <- function(x){
 
 r <- get_runs(is.na(ZIE5_18_fix$WC_15cm))
 
-
 for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   ZIE5_18_fix$WC_15cm[idx] <- (ZIE5_18_fix$WC_15cm[r$starts[i]] + ZIE5_18_fix$WC_15cm[r$ends[i]])/2
@@ -586,7 +579,6 @@ for(i in r$i){
 #Recombine
 ZIE5_18_early <- filter(ZIE5_18, Date_time < "2018-04-23 10:00:01")
 ZIE5_18_late <- filter(ZIE5_18, Date_time > "2018-05-10 10:00:01")
-
 ZIE5_18 <- bind_rows(ZIE5_18_early, ZIE5_18_late, ZIE5_18_fix)
 
 #Subset to remove drips
@@ -615,7 +607,6 @@ get_runs <- function(x){
 
 r <- get_runs(is.na(ZIE5_18_fix$WC_15cm))
 
-
 for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   ZIE5_18_fix$WC_15cm[idx] <- (ZIE5_18_fix$WC_15cm[r$starts[i]] + ZIE5_18_fix$WC_15cm[r$ends[i]])/2
@@ -624,7 +615,6 @@ for(i in r$i){
 #Recombine
 ZIE5_18_early <- filter(ZIE5_18, Date_time < "2018-10-07 10:00:01")
 ZIE5_18_late <- filter(ZIE5_18, Date_time > "2018-10-15 10:00:01")
-
 ZIE5_18 <- bind_rows(ZIE5_18_early, ZIE5_18_late, ZIE5_18_fix)
 
 #Subset to remove drips
@@ -1920,6 +1910,11 @@ ZIE5_18$WC_30cm[ZIE5_18$WC_30cm > 0.30399 & ZIE5_18$WC_30cm < 0.30401] <- NA
 #=============================================================
 ZIE5_18$WC_30cm[ZIE5_18$WC_30cm == 0.3406] <- NA
 
+#Get rid of 0.3040 glitch glitch
+#=============================================================
+ZIE5_18$WC_30cm[ZIE5_18$WC_30cm > 0.306149 & ZIE5_18$WC_30cm < 0.306151] <- NA
+
+
 #100 cm 
 ################################################################
 ZIE5_18$WC_100cm[ZIE5_18$WC_100cm < 0] <- NA
@@ -1958,6 +1953,90 @@ ZIE5_18_fix$WC_100cm[ZIE5_18_fix$WC_100cm < 0.483] <- NA
 #Recombine
 ZIE5_18_early <- filter(ZIE5_18, Date_time < "2018-12-03 00:00:01")
 ZIE5_18_late <- filter(ZIE5_18, Date_time > "2018-12-16 05:00:01")
+ZIE5_18 <- bind_rows(ZIE5_18_early, ZIE5_18_late, ZIE5_18_fix)
+
+#Subset to remove drips
+#===================================================================
+ZIE5_18_fix <- filter(ZIE5_18, Date_time > "2018-01-08 10:00:01")
+ZIE5_18_fix <- filter(ZIE5_18_fix, Date_time < "2018-01-09 15:00:01")
+
+ZIE5_18_fix$WC_100cm[ZIE5_18_fix$WC_100cm < 0.5] <- NA
+missing <- which(is.na(ZIE5_18_fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE5_18_fix$WC_100cm[1] <- head(ZIE5_18_fix$WC_100cm[!is.na(ZIE5_18_fix$WC_100cm)],1)
+}
+if(nrow(ZIE5_18_fix) %in% missing){
+  ZIE5_18_fix$WC_100cm[nrow(data)] <- tail(ZIE5_18_fix$WC_100cm[!is.na(ZIE5_18_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE5_18_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE5_18_fix$WC_100cm[idx] <- (ZIE5_18_fix$WC_100cm[r$starts[i]] + ZIE5_18_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE5_18_early <- filter(ZIE5_18, Date_time < "2018-01-08 10:00:01")
+ZIE5_18_late <- filter(ZIE5_18, Date_time > "2018-01-09 15:00:01")
+ZIE5_18 <- bind_rows(ZIE5_18_early, ZIE5_18_late, ZIE5_18_fix)
+
+#Subset to remove drips
+#===================================================================
+ZIE5_18_fix <- filter(ZIE5_18, Date_time > "2018-01-16 00:00:01")
+ZIE5_18_fix <- filter(ZIE5_18_fix, Date_time < "2018-01-19 15:00:01")
+
+ZIE5_18_fix$WC_100cm[ZIE5_18_fix$WC_100cm < 0.4925] <- NA
+
+#Recombine
+ZIE5_18_early <- filter(ZIE5_18, Date_time < "2018-01-16 00:00:01")
+ZIE5_18_late <- filter(ZIE5_18, Date_time > "2018-01-19 15:00:01")
+ZIE5_18 <- bind_rows(ZIE5_18_early, ZIE5_18_late, ZIE5_18_fix)
+
+#Subset to remove drips
+#===================================================================
+ZIE5_18_fix <- filter(ZIE5_18, Date_time > "2018-01-20 00:00:01")
+ZIE5_18_fix <- filter(ZIE5_18_fix, Date_time < "2018-01-29 15:00:01")
+
+ZIE5_18_fix$WC_100cm[ZIE5_18_fix$WC_100cm < 0.495] <- NA
+missing <- which(is.na(ZIE5_18_fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE5_18_fix$WC_100cm[1] <- head(ZIE5_18_fix$WC_100cm[!is.na(ZIE5_18_fix$WC_100cm)],1)
+}
+if(nrow(ZIE5_18_fix) %in% missing){
+  ZIE5_18_fix$WC_100cm[nrow(data)] <- tail(ZIE5_18_fix$WC_100cm[!is.na(ZIE5_18_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE5_18_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE5_18_fix$WC_100cm[idx] <- (ZIE5_18_fix$WC_100cm[r$starts[i]] + ZIE5_18_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE5_18_early <- filter(ZIE5_18, Date_time < "2018-01-20 00:00:01")
+ZIE5_18_late <- filter(ZIE5_18, Date_time > "2018-01-29 15:00:01")
 ZIE5_18 <- bind_rows(ZIE5_18_early, ZIE5_18_late, ZIE5_18_fix)
 
 #Plot again 
@@ -2687,6 +2766,46 @@ for(i in r$i){
 #Recombine
 ZIE5_19_early <- filter(  ZIE5_19, Date_time < "2019-11-05 00:00:01")
 ZIE5_19_late <- filter(  ZIE5_19, Date_time > "2019-11-25 05:00:01")
+ZIE5_19 <- bind_rows( ZIE5_19_early, ZIE5_19_late, ZIE5_19_fix)
+
+#Subset and remove glitches 
+#=====================================================================
+ZIE5_19_fix <- filter(ZIE5_19, Date_time > "2019-03-05 00:00:01")
+ZIE5_19_fix <- filter(ZIE5_19_fix, Date_time < "2019-05-25 05:00:01")
+
+Soil <- ggplot(data = subset(ZIE5_19_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_100cm, color = "navyblue"))
+Soil 
+
+ZIE5_19_fix$WC_100cm[ZIE5_19_fix$WC_100cm > 0.51] <- NA
+missing <- which(is.na(ZIE5_19_fix$WC_100cm))
+
+if(1 %in% missing){
+  ZIE5_19_fix$WC_100cm[1] <- head(ZIE5_19_fix$WC_100cm[!is.na(ZIE5_19_fix$WC_100cm)],1)
+}
+if(nrow(ZIE5_19_fix) %in% missing){
+  ZIE5_19_fix$WC_100cm[nrow(data)] <- tail(ZIE5_19_fix$WC_100cm[!is.na(ZIE5_19_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE5_19_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE5_19_fix$WC_100cm[idx] <- (ZIE5_19_fix$WC_100cm[r$starts[i]] + ZIE5_19_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE5_19_early <- filter(  ZIE5_19, Date_time < "2019-03-05 00:00:01")
+ZIE5_19_late <- filter(  ZIE5_19, Date_time > "2019-05-25 05:00:01")
 ZIE5_19 <- bind_rows( ZIE5_19_early, ZIE5_19_late, ZIE5_19_fix)
 
 #Plot again 
@@ -3686,37 +3805,17 @@ for(i in r$i){
 #Subset and remove glitch at beginning of year 
 #=============================================================================
 ZIE5_21_fix <- filter(ZIE5_21, Date_time > "2021-01-01 15:10:01")
-ZIE5_21_fix <- filter(ZIE5_21_fix, Date_time < "2021-02-21 04:50:01")
+ZIE5_21_fix <- filter(ZIE5_21_fix, Date_time < "2021-01-15 04:50:01")
 
-ZIE5_21_fix$WC_100cm[ZIE5_21_fix$WC_100cm < 0.45] <- NA
-missing <- which(is.na(ZIE5_21_fix$WC_100cm))
+Soil <- ggplot(data = subset(ZIE5_21_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_100cm, color = "navyblue")) 
+Soil 
 
-if(1 %in% missing){
-  ZIE5_21_fix$WC_100cm[1] <- head(ZIE5_21_fix$WC_100cm[!is.na(ZIE5_21_fix$WC_100cm)],1)
-}
-if(nrow(ZIE5_21_fix) %in% missing){
-  ZIE5_21_fix$WC_100cm[nrow(data)] <- tail(ZIE5_21_fix$WC_100cm[!is.na(ZIE5_21_fix$WC_100cm)],1)
-}
-
-#Find start and ends of each run of NAs
-get_runs <- function(x){
-  starts <- which(diff(x) == 1)
-  y <- rle(x)
-  len <- y$lengths[y$values==TRUE]
-  ends <- starts + len+1
-  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
-}
-
-r <- get_runs(is.na(ZIE5_21_fix$WC_100cm))
-
-for(i in r$i){
-  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
-  ZIE5_21_fix$WC_100cm[idx] <- (ZIE5_21_fix$WC_100cm[r$starts[i]] + ZIE5_21_fix$WC_100cm[r$ends[i]])/2
-}
+ZIE5_21_fix$WC_100cm[ZIE5_21_fix$WC_100cm < 0.49] <- NA
 
 #Recombine
 ZIE5_21_early <- filter(ZIE5_21, Date_time < "2021-01-01 15:10:01")
-ZIE5_21_late <- filter(ZIE5_21, Date_time > "2021-02-21 04:50:01")
+ZIE5_21_late <- filter(ZIE5_21, Date_time > "2021-01-15 04:50:01")
 ZIE5_21 <- bind_rows(ZIE5_21_early, ZIE5_21_late, ZIE5_21_fix)
 
 #Plot again 
