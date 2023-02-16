@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/26/2022
-#Date last edited: 01/30/2023
+#Date last edited: 02/15/2023
 #Description: QA/QC TRE 3
 
 #Attach dependencies 
@@ -13,6 +13,7 @@ library(tidyr)
 library(purrr)
 library(lubridate, warn.conflicts = FALSE)
 library(googledrive)
+
 
 setwd("~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/TRE_new")
 
@@ -185,6 +186,17 @@ for(i in r$i){
   TRE3_19$WC_30cm[idx] <- (TRE3_19$WC_30cm[r$starts[i]] + TRE3_19$WC_30cm[r$ends[i]])/2
 }
 
+#Remove the missing dates
+#=========================================================================
+#Replace missing dates with NAs - 09/26 to 12/31
+insertDF <- as.data.frame(matrix(data = NA, nrow = 96, ncol = 5))
+colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
+Date_time <- seq(as.Date("2019-09-27"), as.Date("2019-12-31"),"days")
+Date <- as.data.frame(Date_time) 
+insertDF <- cbind(Date, insertDF)
+
+TRE3_19 <- insertRows(TRE3_19, c(38655:38751), new = insertDF)
+
 #Plot again 
 Soil <- ggplot(data = subset(TRE3_19, !is.na(Date_time)), aes(x = Date_time)) + 
   geom_line(aes(y = WC_100cm, color = "navyblue")) + 
@@ -342,6 +354,17 @@ for(i in r$i){
 TRE3_20_early <- filter(TRE3_20, Date_time < "2020-09-07 18:00:01")
 TRE3_20_late <- filter(TRE3_20, Date_time > "2020-09-15 00:00:01")
 TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove the missing dates
+#=========================================================================
+#Replace missing dates with NAs - 01/01 to 09/02
+insertDF <- as.data.frame(matrix(data = NA, nrow = 245, ncol = 5))
+colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
+Date_time <- seq(as.Date("2020-01-01"), as.Date("2020-09-01"),"days")
+Date <- as.data.frame(Date_time) 
+insertDF <- cbind(Date, insertDF)
+
+TRE3_20 <- insertRows(TRE3_20, c(1:244), new = insertDF)
 
 #Plot again 
 Soil <- ggplot(data = subset(TRE3_20, !is.na(Date_time)), aes(x = Date_time)) + 
