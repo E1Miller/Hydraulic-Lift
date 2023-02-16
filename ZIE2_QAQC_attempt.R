@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/26/2022
-#Date last edited: 02/15/2023
+#Date last edited: 02/16/2023
 #Description: QA/QC ZIE 2
 
 #Attach dependencies 
@@ -1478,6 +1478,7 @@ Soil
 ZIE2_19_fix$WC_30cm[ZIE2_19_fix$WC_30cm < 0.305] <- NA
 missing <- which(is.na(ZIE2_19_fix$WC_30cm))
 
+
 if(1 %in% missing){
   ZIE2_19_fix$WC_30cm[1] <- head(ZIE2_19_fix$WC_30cm[!is.na(ZIE2_19_fix$WC_30cm)],1)
 }
@@ -2250,6 +2251,46 @@ for(i in r$i){
 #Recombine
 ZIE2_20_early <- filter(ZIE2_20, Date_time < "2020-03-07 00:00:01")
 ZIE2_20_late <- filter(ZIE2_20, Date_time > "2020-03-12 00:50:01")
+ZIE2_20 <- bind_rows(ZIE2_20_early, ZIE2_20_late, ZIE2_20_fix)
+
+#Subset drips
+#==============================================================================
+ZIE2_20_fix <- filter(ZIE2_20, Date_time > "2020-09-21 00:00:01")
+ZIE2_20_fix <- filter(ZIE2_20_fix, Date_time < "2020-10-04 00:50:01")
+
+Soil <- ggplot(data = subset(ZIE2_20_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_15cm, color = "lightblue"))
+Soil 
+
+ZIE2_20_fix$WC_15cm[ZIE2_20_fix$WC_15cm > 0.120] <- NA
+missing <- which(is.na(ZIE2_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  ZIE2_20_fix$WC_15cm[1] <- head(ZIE2_20_fix$WC_15cm[!is.na(ZIE2_20_fix$WC_15cm)],1)
+}
+if(nrow(ZIE2_20_fix) %in% missing){
+  ZIE2_20_fix$WC_15cm[nrow(data)] <- tail(ZIE2_20_fix$WC_15cm[!is.na(ZIE2_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE2_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE2_20_fix$WC_15cm[idx] <- (ZIE2_20_fix$WC_15cm[r$starts[i]] + ZIE2_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE2_20_early <- filter(ZIE2_20, Date_time < "2020-09-21 00:00:01")
+ZIE2_20_late <- filter(ZIE2_20, Date_time > "2020-10-04 00:50:01")
 ZIE2_20 <- bind_rows(ZIE2_20_early, ZIE2_20_late, ZIE2_20_fix)
 
 #30 cm 
@@ -4320,6 +4361,54 @@ for(i in r$i){
 #Recombine
 ZIE2_20_early <- filter(ZIE2_20, Date_time < "2020-07-30 10:00:01")
 ZIE2_20_late <- filter(ZIE2_20, Date_time > "2020-08-03 1:00:01")
+ZIE2_20 <- bind_rows(ZIE2_20_early, ZIE2_20_late, ZIE2_20_fix)
+
+#Fix glitch before missing time 
+#============================================================================
+ZIE2_20_fix <- filter(ZIE2_20, Date_time > "2020-01-30 10:00:01")
+ZIE2_20_fix <- filter(ZIE2_20_fix, Date_time < "2020-02-14 20:00:01")
+
+ZIE2_20_fix$WC_30cm[ZIE2_20_fix$WC_30cm > 0.2895] <- NA
+
+#Recombine
+ZIE2_20_early <- filter(ZIE2_20, Date_time < "2020-01-30 10:00:01")
+ZIE2_20_late <- filter(ZIE2_20, Date_time > "2020-02-14 20:00:01")
+ZIE2_20 <- bind_rows(ZIE2_20_early, ZIE2_20_late, ZIE2_20_fix)
+
+#Fix glitch before missing time 
+#============================================================================
+ZIE2_20_fix <- filter(ZIE2_20, Date_time > "2020-01-01 10:00:01")
+ZIE2_20_fix <- filter(ZIE2_20_fix, Date_time < "2020-02-03 1:00:01")
+
+ZIE2_20_fix$WC_30cm[ZIE2_20_fix$WC_30cm < 0.3] <- NA
+missing <- which(is.na(ZIE2_20_fix$WC_30cm))
+
+if(1 %in% missing){
+  ZIE2_20_fix$WC_30cm[1] <- head(ZIE2_20_fix$WC_30cm[!is.na(ZIE2_20_fix$WC_30cm)],1)
+}
+if(nrow(ZIE2_20_fix) %in% missing){
+  ZIE2_20_fix$WC_30cm[nrow(data)] <- tail(ZIE2_20_fix$WC_30cm[!is.na(ZIE2_20_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(ZIE2_20_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  ZIE2_20_fix$WC_30cm[idx] <- (ZIE2_20_fix$WC_30cm[r$starts[i]] + ZIE2_20_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+ZIE2_20_early <- filter(ZIE2_20, Date_time < "2020-01-01 10:00:01")
+ZIE2_20_late <- filter(ZIE2_20, Date_time > "2020-02-03 1:00:01")
 ZIE2_20 <- bind_rows(ZIE2_20_early, ZIE2_20_late, ZIE2_20_fix)
 
 #100 cm 
