@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/25/2022
-#Date last edited: 02/08/2023
+#Date last edited: 02/20/2023
 #Description: QA/QC WIL 5
 
 #Attach dependencies 
@@ -599,7 +599,6 @@ for(i in r$i){
   idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
   WIL5_18_fix$WC_100cm[idx] <- (WIL5_18_fix$WC_100cm[r$starts[i]] + WIL5_18_fix$WC_100cm[r$ends[i]])/2
 }
-
 
 #Recombine July with other dataset 
 WIL5_18_later <- filter(WIL5_18, Date_time < "2018-11-28 1:00:01")
@@ -2558,10 +2557,6 @@ WIL5_19 <- bind_rows(WIL5_19_later, WIL5_19_fix, WIL5_19_end)
 WIL5_19_fix <- filter(WIL5_19, Date_time > "2019-09-29 12:20:01")
 WIL5_19_fix <- filter(WIL5_19_fix, Date_time < "2019-10-19 03:50:01")
 
-Soil <- ggplot(data = subset(WIL5_19_fix, !is.na(Date_time)), aes(x = Date_time)) + 
-  geom_line(aes(y = WC_30cm, color = "blue"))
-Soil 
-
 WIL5_19_fix$WC_30cm[WIL5_19_fix$WC_30cm > 0.20] <- NA
 missing <- which(is.na(WIL5_19_fix$WC_30cm))
 
@@ -2656,6 +2651,48 @@ WIL5_19_later <- filter(WIL5_19, Date_time < "2019-01-01 09:00:01")
 WIL5_19_end <- filter(WIL5_19, Date_time > "2019-12-31 00:00:01")
 
 WIL5_19 <- bind_rows(WIL5_19_later, WIL5_19_fix, WIL5_19_end)
+
+#Subset July 
+#==========================================================
+WIL5_19_fix <- filter(WIL5_19, Date_time > "2019-04-23 05:20:01")
+WIL5_19_fix <- filter(WIL5_19_fix, Date_time < "2019-06-29 03:50:01")
+
+Soil <- ggplot(data = subset(WIL5_19_fix, !is.na(Date_time)), aes(x = Date_time)) + 
+  geom_line(aes(y = WC_30cm, color = "blue")) + 
+  geom_line(aes(y = WC_15cm, color = "green"))
+Soil 
+
+WIL5_19_fix$WC_30cm[WIL5_19_fix$WC_30cm > 0.218] <- NA
+missing <- which(is.na(WIL5_19_fix$WC_30cm))
+
+if(1 %in% missing){
+  WIL5_19_fix$WC_30cm[1] <- head(WIL5_19_fix$WC_30cm[!is.na(WIL5_19_fix$WC_30cm)],1)
+}
+if(nrow(WIL5_19_fix) %in% missing){
+  WIL5_19_fix$WC_30cm[nrow(data)] <- tail(WIL5_19_fix$WC_30cm[!is.na(WIL5_18_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(WIL5_19_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  WIL5_19_fix$WC_30cm[idx] <- (WIL5_19_fix$WC_30cm[r$starts[i]] + WIL5_19_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine July with other dataset 
+WIL5_19_later <- filter(WIL5_19, Date_time < "2019-09-26 05:20:01")
+WIL5_19_end <- filter(WIL5_19, Date_time > "2019-10-19 03:50:01")
+WIL5_19 <- bind_rows(WIL5_19_later, WIL5_19_fix, WIL5_19_end)
+
 
 #100 cm 
 ################################################################
