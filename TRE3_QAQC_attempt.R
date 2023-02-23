@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/26/2022
-#Date last edited: 02/15/2023
+#Date last edited: 02/23/2023
 #Description: QA/QC TRE 3
 
 #Attach dependencies 
@@ -13,7 +13,6 @@ library(tidyr)
 library(purrr)
 library(lubridate, warn.conflicts = FALSE)
 library(googledrive)
-
 
 setwd("~/Library/CloudStorage/GoogleDrive-mill9104@d.umn.edu/Shared drives/Caspar Data/Soil Moisture/Working_data/TRE_new")
 
@@ -278,6 +277,1230 @@ for(i in r$i){
 #Recombine
 TRE3_20_early <- filter(TRE3_20, Date_time < "2020-09-29 18:00:01")
 TRE3_20_late <- filter(TRE3_20, Date_time > "2020-10-03 00:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-04 1:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-09 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.342] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-04 1:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-09 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-05 1:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-09 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm > 0.3465] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-05 1:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-09 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-06 11:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-09 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm > 0.346] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-06 11:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-09 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-08 11:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-14 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.338] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-08 11:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-14 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-08 11:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-10 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm > 0.345 | TRE3_20_fix$WC_15cm < 0.341] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-08 11:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-10 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-15 11:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-19 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.367] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-15 11:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-19 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-16 05:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-19 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm > 0.372] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-16 05:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-19 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-19 05:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-23 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.36] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-19 05:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-23 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-20 10:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-23 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm > 0.369] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-20 10:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-23 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-25 10:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-27 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.37] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-25 10:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-27 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-25 15:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-27 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm > 0.3765] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-25 15:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-27 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-25 15:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-27 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm > 0.3765] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-25 15:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-27 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-25 15:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-26 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.3735] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-25 15:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-26 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-26 15:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-30 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.367 | TRE3_20_fix$WC_15cm > 0.375] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-26 15:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-30 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-29 15:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-04-02 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.367 | TRE3_20_fix$WC_15cm > 0.375] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-29 15:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-04-02 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-04-01 15:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-04-06 12:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.369] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-04-01 15:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-04-06 12:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-04-04 15:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-04-05 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.3789] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-04-04 15:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-04-05 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-04-04 15:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-04-08 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.3695] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-04-04 15:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-04-08 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-04-06 20:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-04-15 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm > 0.372] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-04-06 20:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-04-15 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-04-06 20:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-04-09 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.369] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-04-06 20:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-04-09 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-04-11 20:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-04-18 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm > 0.368] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-04-11 20:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-04-18 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-02-24 20:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-01 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.348] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-02-24 20:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-01 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-02-26 20:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-01 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm > 0.3525] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-02-26 20:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-01 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-05-02 10:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-05-04 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.3525] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-05-02 10:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-05-04 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-05-04 10:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-05-09 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.346] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-05-04 10:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-05-09 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-05-14 10:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-05-19 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.348] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-05-14 10:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-05-19 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-05-16 17:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-05-19 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.373] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-05-16 17:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-05-19 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-05-17 07:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-05-19 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.376] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-05-17 07:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-05-19 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-05-18 10:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-05-18 21:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.3785] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-05-18 10:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-05-18 21:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-05-18 10:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-05-20 01:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.374] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-05-18 10:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-05-20 01:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-05-19 10:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-05-24 01:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.365] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-05-19 10:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-05-24 01:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-05-22 10:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-05-27 01:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.362] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-05-22 10:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-05-27 01:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-03-17 10:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-03-21 11:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.366] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-03-17 10:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-03-21 11:00:01")
+TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
+
+#Remove drip at end of September
+#====================================================================================
+TRE3_20_fix <- filter(TRE3_20, Date_time > "2020-05-17 10:00:01")
+TRE3_20_fix <- filter(TRE3_20_fix, Date_time < "2020-05-19 01:00:01")
+
+TRE3_20_fix$WC_15cm[TRE3_20_fix$WC_15cm < 0.3775] <- NA
+missing <- which(is.na(TRE3_20_fix$WC_15cm))
+
+if(1 %in% missing){
+  TRE3_20_fix$WC_15cm[1] <- head(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+if(nrow(TRE3_20_fix) %in% missing){
+  TRE3_20_fix$WC_15cm[nrow(data)] <- tail(TRE3_20_fix$WC_15cm[!is.na(TRE3_20_fix$WC_15cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE3_20_fix$WC_15cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE3_20_fix$WC_15cm[idx] <- (TRE3_20_fix$WC_15cm[r$starts[i]] + TRE3_20_fix$WC_15cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE3_20_early <- filter(TRE3_20, Date_time < "2020-05-17 10:00:01")
+TRE3_20_late <- filter(TRE3_20, Date_time > "2020-05-19 01:00:01")
 TRE3_20 <- bind_rows(TRE3_20_early, TRE3_20_late, TRE3_20_fix)
 
 #30 cm 
