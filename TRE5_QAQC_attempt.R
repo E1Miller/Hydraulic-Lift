@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 10/26/2022
-#Date last edited: 02/15/2023
+#Date last edited: 02/24/2023
 #Description: QA/QC TRE 5
 
 #Attach dependencies 
@@ -1187,6 +1187,78 @@ TRE5_19_early <- filter(TRE5_19, Date_time < "2019-08-21 10:00:01")
 TRE5_19_late <- filter(TRE5_19, Date_time > "2019-08-25 00:00:01")
 TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
 
+#Subset and remove glitches
+#=====================================================================
+TRE5_19_fix <- filter(TRE5_19, Date_time > "2019-10-16 10:00:01")
+TRE5_19_fix <- filter(TRE5_19_fix, Date_time < "2019-10-20 00:00:01")
+
+TRE5_19_fix$WC_30cm[TRE5_19_fix$WC_30cm  > 0.24] <- NA
+missing <- which(is.na(TRE5_19_fix$WC_30cm))
+
+if(1 %in% missing){
+  TRE5_19_fix$WC_30cm[1] <- head(TRE5_19_fix$WC_30cm[!is.na(TRE5_19_fix$WC_30cm)],1)
+}
+if(nrow(TRE5_19_fix) %in% missing){
+  TRE5_19_fix$WC_30cm[nrow(data)] <- tail(TRE5_19_fix$WC_30cm[!is.na(TRE5_19_fix$WC_30cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_19_fix$WC_30cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_19_fix$WC_30cm[idx] <- (TRE5_19_fix$WC_30cm[r$starts[i]] + TRE5_19_fix$WC_30cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_19_early <- filter(TRE5_19, Date_time < "2019-10-16 10:00:01")
+TRE5_19_late <- filter(TRE5_19, Date_time > "2019-10-20 00:00:01")
+TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_19_fix <- filter(TRE5_19, Date_time > "2019-10-16 15:00:01")
+TRE5_19_fix <- filter(TRE5_19_fix, Date_time < "2019-10-20 00:00:01")
+
+TRE5_19_fix$WC_30cm[TRE5_19_fix$WC_30cm  < 0.209] <- NA
+
+#Recombine
+TRE5_19_early <- filter(TRE5_19, Date_time < "2019-10-16 15:00:01")
+TRE5_19_late <- filter(TRE5_19, Date_time > "2019-10-20 00:00:01")
+TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_19_fix <- filter(TRE5_19, Date_time > "2019-10-16 17:00:01")
+TRE5_19_fix <- filter(TRE5_19_fix, Date_time < "2019-10-19 01:00:01")
+
+TRE5_19_fix$WC_30cm[TRE5_19_fix$WC_30cm  > 0.220] <- NA
+
+#Recombine
+TRE5_19_early <- filter(TRE5_19, Date_time < "2019-10-16 17:00:01")
+TRE5_19_late <- filter(TRE5_19, Date_time > "2019-10-19 01:00:01")
+TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_19_fix <- filter(TRE5_19, Date_time > "2019-10-19 17:00:01")
+TRE5_19_fix <- filter(TRE5_19_fix, Date_time < "2019-10-22 01:00:01")
+
+TRE5_19_fix$WC_30cm[TRE5_19_fix$WC_30cm  > 0.220] <- NA
+
+#Recombine
+TRE5_19_early <- filter(TRE5_19, Date_time < "2019-10-19 17:00:01")
+TRE5_19_late <- filter(TRE5_19, Date_time > "2019-10-22 01:00:01")
+TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
+
 #100 cm 
 #####################################################################
 
@@ -1194,7 +1266,6 @@ TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
 #=====================================================================
 TRE5_19_fix <- filter(TRE5_19, Date_time > "2019-09-14 10:00:01")
 TRE5_19_fix <- filter(TRE5_19_fix, Date_time < "2019-09-17 00:00:01")
-
 
 TRE5_19_fix$WC_100cm[TRE5_19_fix$WC_100cm  > 0.166] <- NA
 missing <- which(is.na(TRE5_19_fix$WC_100cm))
@@ -1227,16 +1298,221 @@ TRE5_19_early <- filter(TRE5_19, Date_time < "2019-09-14 10:00:01")
 TRE5_19_late <- filter(TRE5_19, Date_time > "2019-09-17 00:00:01")
 TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
 
-#Remove the missing dates
-#=========================================================================
-#Replace missing dates with NAs - 09/27 to 12/31
-insertDF <- as.data.frame(matrix(data = NA, nrow = 95, ncol = 5))
-colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
-Date_time <- seq(as.Date("2019-09-28"), as.Date("2019-12-31"),"days")
-Date <- as.data.frame(Date_time) 
-insertDF <- cbind(Date, insertDF)
+#Subset and remove glitches
+#=====================================================================
+TRE5_19_fix <- filter(TRE5_19, Date_time > "2019-12-10 10:00:01")
+TRE5_19_fix <- filter(TRE5_19_fix, Date_time < "2019-12-17 00:00:01")
 
-TRE5_19 <- insertRows(TRE5_19, c(38789:38884), new = insertDF)
+TRE5_19_fix$WC_100cm[TRE5_19_fix$WC_100cm  < 0.2] <- NA
+missing <- which(is.na(TRE5_19_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_19_fix$WC_100cm[1] <- head(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_19_fix) %in% missing){
+  TRE5_19_fix$WC_100cm[nrow(data)] <- tail(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_19_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_19_fix$WC_100cm[idx] <- (TRE5_19_fix$WC_100cm[r$starts[i]] + TRE5_19_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_19_early <- filter(TRE5_19, Date_time < "2019-12-10 10:00:01")
+TRE5_19_late <- filter(TRE5_19, Date_time > "2019-12-17 00:00:01")
+TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_19_fix <- filter(TRE5_19, Date_time > "2019-12-12 10:00:01")
+TRE5_19_fix <- filter(TRE5_19_fix, Date_time < "2019-12-17 00:00:01")
+
+TRE5_19_fix$WC_100cm[TRE5_19_fix$WC_100cm  < 0.26] <- NA
+missing <- which(is.na(TRE5_19_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_19_fix$WC_100cm[1] <- head(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_19_fix) %in% missing){
+  TRE5_19_fix$WC_100cm[nrow(data)] <- tail(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_19_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_19_fix$WC_100cm[idx] <- (TRE5_19_fix$WC_100cm[r$starts[i]] + TRE5_19_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_19_early <- filter(TRE5_19, Date_time < "2019-12-12 10:00:01")
+TRE5_19_late <- filter(TRE5_19, Date_time > "2019-12-17 00:00:01")
+TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_19_fix <- filter(TRE5_19, Date_time > "2019-12-13 11:00:01")
+TRE5_19_fix <- filter(TRE5_19_fix, Date_time < "2019-12-14 08:00:01")
+
+TRE5_19_fix$WC_100cm[TRE5_19_fix$WC_100cm  < 0.315] <- NA
+missing <- which(is.na(TRE5_19_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_19_fix$WC_100cm[1] <- head(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_19_fix) %in% missing){
+  TRE5_19_fix$WC_100cm[nrow(data)] <- tail(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_19_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_19_fix$WC_100cm[idx] <- (TRE5_19_fix$WC_100cm[r$starts[i]] + TRE5_19_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_19_early <- filter(TRE5_19, Date_time < "2019-12-13 11:00:01")
+TRE5_19_late <- filter(TRE5_19, Date_time > "2019-12-14 08:00:01")
+TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_19_fix <- filter(TRE5_19, Date_time > "2019-12-14 17:00:01")
+TRE5_19_fix <- filter(TRE5_19_fix, Date_time < "2019-12-16 01:00:01")
+
+TRE5_19_fix$WC_100cm[TRE5_19_fix$WC_100cm  < 0.322] <- NA
+missing <- which(is.na(TRE5_19_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_19_fix$WC_100cm[1] <- head(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_19_fix) %in% missing){
+  TRE5_19_fix$WC_100cm[nrow(data)] <- tail(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_19_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_19_fix$WC_100cm[idx] <- (TRE5_19_fix$WC_100cm[r$starts[i]] + TRE5_19_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_19_early <- filter(TRE5_19, Date_time < "2019-12-14 17:00:01")
+TRE5_19_late <- filter(TRE5_19, Date_time > "2019-12-16 01:00:01")
+TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_19_fix <- filter(TRE5_19, Date_time > "2019-12-15 14:00:01")
+TRE5_19_fix <- filter(TRE5_19_fix, Date_time < "2019-12-15 19:00:01")
+
+TRE5_19_fix$WC_100cm[TRE5_19_fix$WC_100cm  < 0.33] <- NA
+missing <- which(is.na(TRE5_19_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_19_fix$WC_100cm[1] <- head(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_19_fix) %in% missing){
+  TRE5_19_fix$WC_100cm[nrow(data)] <- tail(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_19_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_19_fix$WC_100cm[idx] <- (TRE5_19_fix$WC_100cm[r$starts[i]] + TRE5_19_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_19_early <- filter(TRE5_19, Date_time < "2019-12-15 14:00:01")
+TRE5_19_late <- filter(TRE5_19, Date_time > "2019-12-15 19:00:01")
+TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_19_fix <- filter(TRE5_19, Date_time > "2019-12-16 04:00:01")
+TRE5_19_fix <- filter(TRE5_19_fix, Date_time < "2019-12-17 01:00:01")
+
+TRE5_19_fix$WC_100cm[TRE5_19_fix$WC_100cm  < 0.305] <- NA
+missing <- which(is.na(TRE5_19_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_19_fix$WC_100cm[1] <- head(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_19_fix) %in% missing){
+  TRE5_19_fix$WC_100cm[nrow(data)] <- tail(TRE5_19_fix$WC_100cm[!is.na(TRE5_19_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_19_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_19_fix$WC_100cm[idx] <- (TRE5_19_fix$WC_100cm[r$starts[i]] + TRE5_19_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_19_early <- filter(TRE5_19, Date_time < "2019-12-16 04:00:01")
+TRE5_19_late <- filter(TRE5_19, Date_time > "2019-12-17 01:00:01")
+TRE5_19 <- bind_rows(TRE5_19_early, TRE5_19_late, TRE5_19_fix)
 
 #Plot again 
 Soil <- ggplot(data = subset(TRE5_19, !is.na(Date_time)), aes(x = Date_time)) + 
@@ -1391,6 +1667,19 @@ TRE5_20_early <- filter(TRE5_20, Date_time < "2020-11-02 10:00:01")
 TRE5_20_late <- filter(TRE5_20, Date_time > "2020-11-06 02:00:01")
 TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
 
+#Calibrate
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-08-21 08:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-09-03 09:00:01")
+
+TRE5_20_fix$WC_15cm <- TRE5_20_fix$WC_15cm + 0.0032
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-08-21 08:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-09-03 09:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+
 #30 cm 
 ################################################################
 TRE5_20$WC_30cm[TRE5_20$WC_30cm < 0] <- NA
@@ -1419,20 +1708,678 @@ for(i in r$i){
   TRE5_20$WC_30cm[idx] <- (TRE5_20$WC_30cm[r$starts[i]] + TRE5_20$WC_30cm[r$ends[i]])/2
 }
 
+#Remove glitch 
+#===========================================================================================
+TRE5_20$WC_30cm[TRE5_20$WC_30cm == 0.7184] <- NA
+
 #100 cm 
 ################################################################
-TRE5_20$WC_100cm[TRE5_20$WC_100cm > 0.305] <- NA
 
-#Remove the missing dates
-#=========================================================================
-#Replace missing dates with NAs - 01/01 to 08/21
-insertDF <- as.data.frame(matrix(data = NA, nrow = 235, ncol = 5))
-colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
-Date_time <- seq(as.Date("2020-01-01"), as.Date("2020-08-22"),"days")
-Date <- as.data.frame(Date_time) 
-insertDF <- cbind(Date, insertDF)
+TRE5_20$WC_100cm[TRE5_20$WC_100cm > 0.4] <- NA
 
-TRE5_20 <- insertRows(TRE5_20, c(1:234), new = insertDF)
+#Remove below 0 values 
+#=========================================================================================
+TRE5_20$WC_100cm[TRE5_20$WC_100cm < 0] <- NA
+missing <- which(is.na(TRE5_20$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20$WC_100cm[1] <- head(TRE5_20$WC_100cm[!is.na(TRE5_20$WC_100cm)],1)
+}
+if(nrow(TRE5_20) %in% missing){
+  TRE5_20$WC_100cm[nrow(data)] <- tail(TRE5_20$WC_100cm[!is.na(TRE5_20$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20$WC_100cm[idx] <- (TRE5_20$WC_100cm[r$starts[i]] + TRE5_20$WC_100cm[r$ends[i]])/2
+}
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-01-29 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-02-12 00:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm > 0.355] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-01-29 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-02-12 00:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-02-11 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-02-17 00:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm > 0.322 | TRE5_20_fix$WC_100cm < 0.312] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-02-11 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-02-17 00:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-02-21 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-02-27 00:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm > 0.309] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-02-21 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-02-27 00:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-02-28 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-03-03 00:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm > 0.30] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-02-28 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-03-03 00:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-04-10 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-05-03 00:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm > 0.335] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-04-10 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-05-03 00:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-04-30 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-06-03 00:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm < 0.25] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-04-30 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-06-03 00:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-06-01 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-06-03 00:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm < 0.262] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-06-01 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-06-03 00:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-06-19 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-06-28 00:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm < 0.2 | TRE5_20_fix$WC_100cm > 0.22] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-06-19 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-06-28 00:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-06-19 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-06-22 20:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm < 0.214] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-06-19 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-06-22 20:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-06-28 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-07-16 20:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm < 0.187 | TRE5_20_fix$WC_100cm > 0.21] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-06-28 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-07-16 20:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-06-28 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-07-16 20:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm < 0.187 | TRE5_20_fix$WC_100cm > 0.21] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-06-28 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-07-16 20:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-07-13 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-07-27 20:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm < 0.1805 | TRE5_20_fix$WC_100cm > 0.1925] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-07-13 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-07-27 20:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-07-06 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-07-27 20:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm > 0.2] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-07-06 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-07-27 20:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-07-12 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-07-17 20:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm < 0.1882] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time <"2020-07-12 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-07-17 20:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-07-12 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-07-13 21:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm < 0.191] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time <"2020-07-12 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-07-13 21:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-07-12 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-07-30 01:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm < 0.18] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time <"2020-07-12 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-07-30 01:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-07-21 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-07-28 01:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm < 0.1815] <- NA
+missing <- which(is.na(TRE5_20_fix$WC_100cm))
+
+if(1 %in% missing){
+  TRE5_20_fix$WC_100cm[1] <- head(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+if(nrow(TRE5_20_fix) %in% missing){
+  TRE5_20_fix$WC_100cm[nrow(data)] <- tail(TRE5_20_fix$WC_100cm[!is.na(TRE5_20_fix$WC_100cm)],1)
+}
+
+#Find start and ends of each run of NAs
+get_runs <- function(x){
+  starts <- which(diff(x) == 1)
+  y <- rle(x)
+  len <- y$lengths[y$values==TRUE]
+  ends <- starts + len+1
+  return(list(starts=starts,len=len,ends=ends, i=1:length(starts)))
+}
+
+r <- get_runs(is.na(TRE5_20_fix$WC_100cm))
+
+for(i in r$i){
+  idx <- seq(r$starts[i]+1,r$ends[i]-1,1)
+  TRE5_20_fix$WC_100cm[idx] <- (TRE5_20_fix$WC_100cm[r$starts[i]] + TRE5_20_fix$WC_100cm[r$ends[i]])/2
+}
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-07-21 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-07-28 01:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-07-21 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-09-28 01:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm > 0.289 & TRE5_20_fix$WC_100cm < 0.291] <- NA
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-07-21 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-09-28 01:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
+
+#Subset and remove glitches
+#=====================================================================
+TRE5_20_fix <- filter(TRE5_20, Date_time > "2020-09-01 13:00:01")
+TRE5_20_fix <- filter(TRE5_20_fix, Date_time < "2020-10-08 01:00:01")
+
+TRE5_20_fix$WC_100cm[TRE5_20_fix$WC_100cm > 0.302] <- NA
+
+#Recombine
+TRE5_20_early <- filter(TRE5_20, Date_time < "2020-09-01 13:00:01")
+TRE5_20_late <- filter(TRE5_20, Date_time > "2020-10-08 01:00:01")
+TRE5_20 <- bind_rows(TRE5_20_early, TRE5_20_late, TRE5_20_fix)
 
 #Plot again 
 Soil <- ggplot(data = subset(TRE5_20, !is.na(Date_time)), aes(x = Date_time)) + 
