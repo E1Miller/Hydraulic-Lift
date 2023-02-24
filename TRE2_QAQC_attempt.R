@@ -1,6 +1,6 @@
 #Created by: Elise Miller
 #Date started: 12/19/2022
-#Date last edited: 02/23/2023
+#Date last edited: 02/24/2023
 #Description: QA/QC TRE 2
 
 #Attach dependencies 
@@ -3959,15 +3959,6 @@ insertDF <- cbind(Date, insertDF)
 
 TRE2_19 <- insertRows(TRE2_19, c(34248:34254), new = insertDF)
 
-#Replace missing dates with NAs - 09/26 to 12/31
-insertDF <- as.data.frame(matrix(data = NA, nrow = 96, ncol = 5))
-colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
-Date_time <- seq(as.Date("2019-09-27"), as.Date("2019-12-31"),"days")
-Date <- as.data.frame(Date_time) 
-insertDF <- cbind(Date, insertDF)
-
-TRE2_19 <- insertRows(TRE2_19, c(38530:38625), new = insertDF)
-
 #Plot again 
 Soil <- ggplot(data = subset(TRE2_19, !is.na(Date_time)), aes(x = Date_time)) + 
   geom_line(aes(y = WC_100cm, color = "navyblue")) + 
@@ -4362,18 +4353,6 @@ for(i in r$i){
 TRE2_20_early <- filter(TRE2_20, Date_time < "2020-08-07 23:00:01")
 TRE2_20_late <- filter(TRE2_20, Date_time > "2020-08-12 00:00:01")
 TRE2_20 <- bind_rows(TRE2_20_early, TRE2_20_late, TRE2_20_fix)
-
-#Replace missing dates
-##############################################################################
-
-#Replace missing dates with NAs - 01/01 to 09/02
-insertDF <- as.data.frame(matrix(data = NA, nrow = 245, ncol = 5))
-colnames(insertDF) <- c("PAR", "WC_15cm","WC_30cm", "WC_100cm", "Year")
-Date_time <- seq(as.Date("2020-01-01"), as.Date("2020-09-01"),"days")
-Date <- as.data.frame(Date_time) 
-insertDF <- cbind(Date, insertDF)
-
-TRE2_20 <- insertRows(TRE2_20, c(1:244), new = insertDF)
 
 #Plot again 
 Soil <- ggplot(data = subset(TRE2_20, !is.na(Date_time)), aes(x = Date_time)) + 
